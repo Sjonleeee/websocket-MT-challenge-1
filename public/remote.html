@@ -31,60 +31,95 @@
         background: red;
         border-radius: 50% 50%;
       }
+
+      .container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        align-self: center;
+      }
+
+      button {
+        width: 200px;
+        height: 100px;
+        font-size: 20px;
+      }
     </style>
   </head>
-
+  <div class="container">
+    <button id="btnLeft">Left</button>
+    <button id="btnUp">Up</button>
+    <button id="btnDown">Down</button>
+    <button id="btnRight">Right</button>
+  </div>
   <body>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      {
-        const $messages = document.getElementById("messages");
+      const $messages = document.getElementById("messages");
 
-        let socket; // will be assigned a value later
+      let socket; // will be assigned a value later
 
-        const init = () => {
-          targetSocketId = getUrlParameter("id");
-          if (!targetSocketId) {
-            alert(`Missing target ID in querystring`);
-            return;
-          }
-          socket = io.connect("/");
-          socket.on("connect", () => {
-            console.log(`Connected: ${socket.id}`);
+      const init = () => {
+        targetSocketId = getUrlParameter("id");
+        if (!targetSocketId) {
+          alert(`Missing target ID in querystring`);
+          return;
+        }
+        socket = io.connect("/");
+        socket.on("connect", () => {
+          console.log(`Connected: ${socket.id}`);
+        });
+        window.addEventListener(`mousemove`, (e) => handleMouseMove(e));
+        window.addEventListener(`touchmove`, (e) => handleTouchMove(e));
+
+        const $btnLeft = document.querySelector(`#btnLeft`);
+        const $btnUp = document.querySelector(`#btnUp`);
+        const $btnDown = document.querySelector(`#btnDown`);
+        const $btnRight = document.querySelector(`#btnRight`);
+
+        $btnLeft.addEventListener(`click`, (e) => handleClick(e));
+        $btnUp.addEventListener(`click`, (e) => handleClick(e));
+        $btnDown.addEventListener(`click`, (e) => handleClick(e));
+        $btnRight.addEventListener(`click`, (e) => handleClick(e));
+      };
+
+      const getUrlParameter = (name) => {
+        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        const regex = new RegExp("[\\?&]" + name + "=([^&#]*)");
+        const results = regex.exec(location.search);
+        return results === null
+          ? false
+          : decodeURIComponent(results[1].replace(/\+/g, " "));
+      };
+
+      const handleMouseMove = (e) => {
+        if (socket.connected) {
+          socket.emit(`update`, targetSocketId, {
+            x: e.clientX / window.innerWidth,
+            y: e.clientY / window.innerHeight,
           });
-          window.addEventListener(`mousemove`, (e) => handleMouseMove(e));
-          window.addEventListener(`touchmove`, (e) => handleTouchMove(e));
-        };
+        }
+      };
 
-        const getUrlParameter = (name) => {
-          name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-          const regex = new RegExp("[\\?&]" + name + "=([^&#]*)");
-          const results = regex.exec(location.search);
-          return results === null
-            ? false
-            : decodeURIComponent(results[1].replace(/\+/g, " "));
-        };
+      const handleTouchMove = (e) => {
+        if (socket.connected) {
+          socket.emit(`update`, targetSocketId, {
+            x: e.touches[0].clientX / window.innerWidth,
+            y: e.touches[0].clientY / window.innerHeight,
+          });
+        }
+      };
 
-        const handleMouseMove = (e) => {
-          if (socket.connected) {
-            socket.emit(`update`, targetSocketId, {
-              x: e.clientX / window.innerWidth,
-              y: e.clientY / window.innerHeight,
-            });
-          }
-        };
+      const handleClick = (e) => {
+        if (socket.connected) {
+          socket.emit("click", targetSocketId, e.target.id);
+          // alert(e.target.id);
+        }
+      };
 
-        const handleTouchMove = (e) => {
-          if (socket.connected) {
-            socket.emit(`update`, targetSocketId, {
-              x: e.touches[0].clientX / window.innerWidth,
-              y: e.touches[0].clientY / window.innerHeight,
-            });
-          }
-        };
-
-        init();
-      }
+      init();
     </script>
   </body>
 </html>
