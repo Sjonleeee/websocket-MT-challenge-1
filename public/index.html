@@ -16,10 +16,9 @@
         box-sizing: inherit;
       }
 
-      html,
-      body {
-        height: 100%;
-        margin: 0;
+      h1,
+      #qr {
+        text-align: center;
       }
 
       .cursor {
@@ -31,52 +30,221 @@
         background: red;
         border-radius: 50% 50%;
       }
+
+      /* snake game */
+      #game-area {
+        width: 600px;
+        height: 600px;
+        border: 2px solid black;
+        margin: 0 auto;
+        position: relative;
+      }
+
+      .snake,
+      .food {
+        width: 20px;
+        height: 20px;
+        position: absolute;
+      }
+
+      .snake {
+        background-color: green;
+      }
     </style>
   </head>
 
   <body>
+    <p></p>
     <div id="qr"></div>
+    <h1>Snake Game</h1>
+    <div id="game-area"></div>
+    <script src="script.js"></script>
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
     <script>
-      {
-        const $messages = document.getElementById("messages");
+      const $messages = document.getElementById("messages");
 
-        const $url = document.getElementById("qr");
-        let socket; // will be assigned a value later
+      const $url = document.getElementById("qr");
+      let socket; // will be assigned a value later
 
-        const init = () => {
-          socket = io.connect("/");
-          socket.on("connect", () => {
-            console.log(`Connected: ${socket.id}`);
+      const init = () => {
+        socket = io.connect("/");
+        socket.on("connect", () => {
+          console.log(`Connected: ${socket.id}`);
 
-            const url = `${window.location}remote.html?id=${socket.id}`;
+          const url = `${window.location}remote.html?id=${socket.id}`;
 
-            $url.textContent = url;
-            $url.setAttribute("href", url);
-            const typeNumber = 4;
-            const errorCorrectionLevel = "L";
-            const qr = qrcode(typeNumber, errorCorrectionLevel);
-            qr.addData(url);
-            qr.make();
-            document.getElementById("qr").innerHTML = qr.createImgTag(4);
+          $url.textContent = url;
+          $url.setAttribute("href", url);
+          const typeNumber = 4;
+          const errorCorrectionLevel = "L";
+          const qr = qrcode(typeNumber, errorCorrectionLevel);
+          qr.addData(url);
+          qr.make();
+          document.getElementById("qr").innerHTML = qr.createImgTag(4);
+        });
+
+        socket.on("update", (data) => {
+          let $cursor = document.querySelector(`#cursor`);
+          if (!$cursor) {
+            $cursor = document.createElement(`div`);
+            $cursor.classList.add(`cursor`);
+            $cursor.setAttribute(`id`, `cursor`);
+            document.body.appendChild($cursor);
+          }
+          $cursor.style.left = `${data.x * window.innerWidth}px`;
+          $cursor.style.top = `${data.y * window.innerHeight}px`;
+        });
+        
+        socket.on("click", (direction) => {
+          console.log(direction);
+          switch (direction) {
+            case "btnLeft":
+              direction = "left";
+              break;
+            case "btnUp":
+              direction = "up";
+              console.log("click up");
+              break;
+            case "btnRight":
+              direction = "right";
+              break;
+            case "btnDown":
+              direction = "down";
+              break;
+          }
+        });
+      };
+
+      //  Snake
+      const gameArea = document.getElementById("game-area");
+      const snake = [
+        { x: 300, y: 300 },
+        { x: 280, y: 300 },
+        { x: 260, y: 300 },
+      ];
+
+      const getFoodLocation = () => {
+        const foodX = Math.floor(Math.random() * 30) * 20;
+        const foodY = Math.floor(Math.random() * 30) * 20;
+        const foodLocation = { x: foodX, y: foodY };
+        return foodLocation;
+      };
+
+      let direction = "right";
+      let food = getFoodLocation();
+      let game;
+
+      const drawSnake = () => {
+        snake.forEach((segment) => {
+          const snakeBody = document.createElement("div");
+          snakeBody.style.left = segment.x + "px";
+          snakeBody.style.top = segment.y + "px";
+          snakeBody.classList.add("snake");
+          gameArea.appendChild(snakeBody);
+        });
+      };
+
+      const moveSnake = () => {
+        const newHead = { x: snake[0].x, y: snake[0].y };
+        switch (direction) {
+          case "up":
+            newHead.y -= 20;
+            break;
+          case "down":
+            newHead.y += 20;
+            break;
+          case "left":
+            newHead.x -= 20;
+            break;
+          case "right":
+            newHead.x += 20;
+            break;
+        }
+        snake.pop();
+        snake.unshift(newHead);
+      };
+
+      const drawFood = () => {
+        const foodElement = document.createElement("div");
+        foodElement.style.left = food.x + "px";
+        foodElement.style.top = food.y + "px";
+        foodElement.classList.add("food");
+        foodElement.innerHTML = "🍎"; // add some content to the food element
+        gameArea.appendChild(foodElement);
+      };
+
+      const eatFood = () => {
+        if (snake[0].x === food.x && snake[0].y === food.y) {
+          snake.push({
+            x: snake[snake.length - 1].x,
+            y: snake[snake.length - 1].y,
           });
+          food = getFoodLocation();
+        }
+      };
 
-          socket.on(`update`, (data) => {
-            let $cursor = document.querySelector(`#cursor`);
-            if (!$cursor) {
-              $cursor = document.createElement(`div`);
-              $cursor.classList.add(`cursor`);
-              $cursor.setAttribute(`id`, `cursor`);
-              document.body.appendChild($cursor);
+      const checkCollision = () => {
+        if (
+          snake[0].x < 0 ||
+          snake[0].x >= 600 ||
+          snake[0].y < 0 ||
+          snake[0].y >= 600
+        ) {
+          clearInterval(game);
+          // alert("Game Over!");
+        }
+        for (let i = 1; i < snake.length; i++) {
+          if (snake[0].x === snake[i].x && snake[0].y === snake[i].y) {
+            clearInterval(game);
+            // alert("Game Over!");
+          }
+        }
+      };
+
+      const changeDirection = (event) => {
+        switch (event.keyCode) {
+          case 37:
+            if (direction !== "right") {
+              direction = "left";
             }
-            $cursor.style.left = `${data.x * window.innerWidth}px`;
-            $cursor.style.top = `${data.y * window.innerHeight}px`;
-          });
-        };
+            break;
+          case 38:
+            if (direction !== "down") {
+              direction = "up";
+            }
+            break;
+          case 39:
+            if (direction !== "left") {
+              direction = "right";
+            }
+            break;
+          case 40:
+            if (direction !== "up") {
+              direction = "down";
+            }
+            break;
+        }
+      };
 
-        init();
-      }
+      const startGame = () => {
+        drawSnake();
+        drawFood();
+
+        game = setInterval(() => {
+          gameArea.innerHTML = "";
+          moveSnake();
+          drawSnake();
+          drawFood();
+          eatFood();
+          checkCollision();
+        }, 1000);
+      };
+
+      document.addEventListener("keydown", changeDirection);
+      init();
+      startGame();
     </script>
   </body>
 </html>
