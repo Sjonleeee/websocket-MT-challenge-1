@@ -23,6 +23,13 @@ io.on("connection", (socket) => {
     io.to(targetSocketId).emit("update", data);
   });
 
+  socket.on("click", (targetSocketId, data) => {
+    if (!clients[targetSocketId]) {
+      return;
+    }
+    io.to(targetSocketId).emit("click", data);
+  });
+
   socket.on("disconnect", () => {
     delete clients[socket.id];
   });
