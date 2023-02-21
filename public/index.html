@@ -16,7 +16,7 @@
         box-sizing: inherit;
       }
 
-      h1,
+      p,
       #qr {
         text-align: center;
       }
@@ -54,15 +54,16 @@
   </head>
 
   <body>
-    <p></p>
+    <p>Scan the QR code to start</p>
     <div id="qr"></div>
-    <h1>Snake Game</h1>
     <div id="game-area"></div>
     <script src="script.js"></script>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
     <script>
+      let direction = "right";
+      console.log("direction:", direction);
       const $messages = document.getElementById("messages");
 
       const $url = document.getElementById("qr");
@@ -96,22 +97,30 @@
           $cursor.style.left = `${data.x * window.innerWidth}px`;
           $cursor.style.top = `${data.y * window.innerHeight}px`;
         });
-        
-        socket.on("click", (direction) => {
-          console.log(direction);
-          switch (direction) {
+
+        socket.on("click", (dir) => {
+          switch (dir) {
             case "btnLeft":
-              direction = "left";
+              if (direction !== "right") {
+                direction = "left";
+              }
               break;
             case "btnUp":
-              direction = "up";
-              console.log("click up");
+              if (direction !== "down") {
+                direction = "up";
+              }
               break;
+
             case "btnRight":
-              direction = "right";
+              if (direction !== "left") {
+                direction = "right";
+              }
               break;
+
             case "btnDown":
-              direction = "down";
+              if (direction !== "up") {
+                direction = "down";
+              }
               break;
           }
         });
@@ -132,7 +141,6 @@
         return foodLocation;
       };
 
-      let direction = "right";
       let food = getFoodLocation();
       let game;
 
