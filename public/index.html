@@ -15,6 +15,8 @@
         padding: 0;
         background-color: #202020;
         font-family: sans-serif;
+        color: white;
+        font-size: 1.4rem;
       }
 
       *,
@@ -29,9 +31,16 @@
         align-items: center;
         height: 100vh;
       }
-      p,
-      #qr {
-        text-align: center;
+
+      .qr__box {
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+        width: 30%;
+        padding: 20px;
+        margin: 0 auto;
+        margin-block: 20px;
       }
 
       .cursor {
@@ -85,19 +94,14 @@
         align-items: center;
         font-size: 1.8rem;
       }
-
-    
-
-     
-
-     
-    
     </style>
   </head>
 
   <body>
-    <p>Scan the QR code to start</p>
-    <div id="qr"></div>
+    <div class="qr__box">
+      <p>Scan the QR code to start</p>
+      <div id="qr"></div>
+    </div>
     <div id="game-area"></div>
     <script src="script.js"></script>
 
@@ -109,7 +113,7 @@
       const $messages = document.getElementById("messages");
 
       const $url = document.getElementById("qr");
-      let socket; // will be assigned a value later
+      let socket = io("https://192.168.1.165/443");
 
       const init = () => {
         socket = io.connect("/");
