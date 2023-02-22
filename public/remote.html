@@ -4,16 +4,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <link rel="stylesheet" href="./css/remote.css">
+    <link rel="stylesheet" href="./css/remote.css" />
     <title>Socket.io Remote controller</title>
   </head>
-  <div class="container">
-    <button id="btnLeft">Left</button>
-    <button id="btnUp">Up</button>
-    <button id="btnDown">Down</button>
-    <button id="btnRight">Right</button>
-  </div>
+
   <body>
+    <button id="btnGyroscope" role="button">Start the demo</button>
+
+    <button id="start-button">Start Game</button>
+    <button id="reset-button">Reset Game</button>
+    <div class="container">
+      <button id="btnLeft">◀️</button>
+      <button id="btnUp">🔼</button>
+      <button id="btnDown">🔽</button>
+      <button id="btnRight">▶️</button>
+    </div>
     <script src="/socket.io/socket.io.js"></script>
     <script>
       const $messages = document.getElementById("messages");
@@ -33,15 +38,97 @@
         window.addEventListener(`mousemove`, (e) => handleMouseMove(e));
         window.addEventListener(`touchmove`, (e) => handleTouchMove(e));
 
+        // Listen for start-game event from client
+        socket.on("start-game", (targetSocketId) => {
+          // Find the socket with the specified ID
+          const targetSocket = io.sockets.sockets.get(targetSocketId);
+
+          if (!targetSocket) {
+            console.log(`Socket with ID ${targetSocketId} not found`);
+            return;
+          }
+          // Send start-game event to target socket
+          targetSocket.emit("start-game");
+        });
+
+        socket.on("reset-game", (targetSocketId) => {
+          // Find the socket with the specified ID
+          const targetSocket = io.sockets.sockets.get(targetSocketId);
+
+          if (!targetSocket) {
+            console.log(`Socket with ID ${targetSocketId} not found`);
+            return;
+          }
+          // Send start-game event to target socket
+          targetSocket.emit("reset-game");
+        });
+
+        // Remote controller
         const $btnLeft = document.querySelector(`#btnLeft`);
         const $btnUp = document.querySelector(`#btnUp`);
         const $btnDown = document.querySelector(`#btnDown`);
         const $btnRight = document.querySelector(`#btnRight`);
 
+        // Start button
+        const $startButton = document.getElementById("start-button");
+        // Reset button
+        const $resetButton = document.getElementById("reset-button");
+
         $btnLeft.addEventListener(`click`, (e) => handleClick(e));
         $btnUp.addEventListener(`click`, (e) => handleClick(e));
         $btnDown.addEventListener(`click`, (e) => handleClick(e));
         $btnRight.addEventListener(`click`, (e) => handleClick(e));
+        $startButton.addEventListener("click", (e) => handleStartButton(e));
+        $resetButton.addEventListener("click", (e) => handleResetButton(e));
+
+        // gyros
+
+        let is_running = false;
+
+        const updateFieldIfNotNull = (gyroscopeId, value) => {
+          if (value != null)
+            document.getElementById(gyroscopeId).innerHTML = value.toFixed(0);
+        };
+
+        const handleMotion = (event) => {
+          if (socket.connected) {
+            const gyroscopeCoordinates = {
+              x: event.rotationRate.alpha,
+              y: event.rotationRate.beta,
+              z: event.rotationRate.gamma,
+            };
+
+            // motions for moving the snake
+            if (gyroscopeCoordinates.z < -100) {
+              socket.emit("gyroscope", targetSocketId, "right");
+            }
+            if (gyroscopeCoordinates.z > 100) {
+              socket.emit("gyroscope", targetSocketId, "left");
+            }
+            if (gyroscopeCoordinates.x > 100) {
+              socket.emit("gyroscope", targetSocketId, "down");
+            }
+            if (gyroscopeCoordinates.x < -100) {
+              socket.emit("gyroscope", targetSocketId, "up");
+            }
+          }
+        };
+
+        const handleGyroscopeClick = (e) => {
+          e.preventDefault();
+          if (is_running) {
+            window.removeEventListener("devicemotion", handleMotion);
+            $btnGyroscope.innerHTML = "Start gyroscope";
+            is_running = false;
+          } else {
+            window.addEventListener("devicemotion", handleMotion);
+            $btnGyroscope.innerHTML = "Stop gyroscope";
+            is_running = true;
+          }
+        };
+
+        let $btnGyroscope = document.querySelector("#btnGyroscope");
+        $btnGyroscope.addEventListener("click", (e) => handleGyroscopeClick(e));
       };
 
       const getUrlParameter = (name) => {
@@ -74,7 +161,20 @@
       const handleClick = (e) => {
         if (socket.connected) {
           socket.emit("click", targetSocketId, e.target.id);
-          // alert(e.target.id);
+        }
+      };
+
+      const handleStartButton = (e) => {
+        if (socket.connected) {
+          socket.emit("start-game", targetSocketId);
+          console.log("Start game");
+        }
+      };
+
+      const handleResetButton = (e) => {
+        if (socket.connected) {
+          socket.emit("reset-game", targetSocketId);
+          console.log("Reset game");
         }
       };
 

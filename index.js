@@ -7,17 +7,16 @@ const fs = require("fs");
 // Const options - key en crt
 const options = {
   key: fs.readFileSync("localhost.key"),
-  cert: fs.readFileSync("localhost.crt"),
+  cert: fs.readFileSync("./localhost.crt"),
 };
 
 // Security for Https
-const server = https.createServer(options, app);
+const server = https.Server(options, app);
 const io = new Server(server);
 const port = process.env.PORT || 443;
 
 const clients = {};
 io.on("connection", (socket) => {
-
   clients[socket.id] = { id: socket.id };
   console.log("Socket connected", socket.id);
 
@@ -33,11 +32,37 @@ io.on("connection", (socket) => {
     io.to(targetSocketId).emit("update", data);
   });
 
+  // Left right up down buttons
   socket.on("click", (targetSocketId, data) => {
     if (!clients[targetSocketId]) {
       return;
     }
     io.to(targetSocketId).emit("click", data);
+  });
+
+  // Start game
+  socket.on("start-game", (targetSocketId, data) => {
+    if (!clients[targetSocketId]) {
+      return;
+    }
+    io.to(targetSocketId).emit("start-game", data);
+  });
+
+  // reset game
+  socket.on("reset-game", (targetSocketId, data) => {
+    if (!clients[targetSocketId]) {
+      return;
+    }
+    io.to(targetSocketId).emit("reset-game", data);
+  });
+
+  // gyroscope
+  socket.on("gyroscope", (targetSocketId, direction) => {
+    console.log(direction);
+    if (!clients[targetSocketId]) {
+      return;
+    }
+    io.to(targetSocketId).emit("gyroscope", direction);
   });
 
   socket.on("disconnect", () => {

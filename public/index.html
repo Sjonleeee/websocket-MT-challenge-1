@@ -9,7 +9,6 @@
   </head>
 
   <body>
-    <button id="start-button">Start Game</button>
     <div class="qr__box">
       <p>Scan the QR code to start</p>
       <div id="qr"></div>
@@ -44,6 +43,7 @@
           document.getElementById("qr").innerHTML = qr.createImgTag(4);
         });
 
+        // Update
         socket.on("update", (data) => {
           let $cursor = document.querySelector(`#cursor`);
           if (!$cursor) {
@@ -56,6 +56,7 @@
           $cursor.style.top = `${data.y * window.innerHeight}px`;
         });
 
+        // Direction buttons
         socket.on("click", (dir) => {
           switch (dir) {
             case "btnLeft":
@@ -82,9 +83,49 @@
               break;
           }
         });
+
+        // gyroscope directions buttons
+        socket.on("gyroscope", (dir) => {
+          console.log(dir);
+          switch (dir) {
+            case "left":
+              if (direction !== "right") {
+                direction = "left";
+              }
+              break;
+            case "up":
+              if (direction !== "down") {
+                direction = "up";
+              }
+              break;
+
+            case "right":
+              if (direction !== "left") {
+                direction = "right";
+              }
+              break;
+
+            case "down":
+              if (direction !== "up") {
+                direction = "down";
+              }
+              break;
+          }
+        });
+
+        // Start the game button
+        socket.on("start-game", () => {
+          console.log("start");
+          startGame();
+        });
+
+        // Reset game
+        socket.on("reset-game", () => {
+          console.log("reset");
+        });
       };
 
-      //  Snake
+      //  Snake Game
       const gameArea = document.getElementById("game-area");
       const snake = [
         { x: 300, y: 300 },
@@ -137,7 +178,7 @@
         foodElement.style.left = food.x + "px";
         foodElement.style.top = food.y + "px";
         foodElement.classList.add("food");
-        foodElement.innerHTML = "🍎"; // add some content to the food element
+        foodElement.innerHTML = "🍔"; // add some content to the food element
         gameArea.appendChild(foodElement);
       };
 
@@ -159,12 +200,12 @@
           snake[0].y >= 600
         ) {
           clearInterval(game);
-          // alert("Game Over!");
+          alert("Game Over!");
         }
         for (let i = 1; i < snake.length; i++) {
           if (snake[0].x === snake[i].x && snake[0].y === snake[i].y) {
             clearInterval(game);
-            // alert("Game Over!");
+            alert("Game Over!");
           }
         }
       };
@@ -198,22 +239,18 @@
         drawSnake();
         drawFood();
 
-        const startButton = document.getElementById("start-button");
-        startButton.addEventListener("click", () => {
-          game = setInterval(() => {
-            gameArea.innerHTML = "";
-            moveSnake();
-            drawSnake();
-            drawFood();
-            eatFood();
-            checkCollision();
-          }, 100);
-        });
+        game = setInterval(() => {
+          gameArea.innerHTML = "";
+          moveSnake();
+          drawSnake();
+          drawFood();
+          eatFood();
+          checkCollision();
+        }, 400);
       };
 
       document.addEventListener("keydown", changeDirection);
       init();
-      startGame();
     </script>
   </body>
 </html>
