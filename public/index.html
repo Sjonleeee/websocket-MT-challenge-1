@@ -4,10 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Socket.io Desktop</title>
+    <title>Socket.io Challenge 1</title>
     <style>
       html {
         box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #202020;
+        font-family: sans-serif;
       }
 
       *,
@@ -16,6 +23,12 @@
         box-sizing: inherit;
       }
 
+      .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
       p,
       #qr {
         text-align: center;
@@ -35,21 +48,50 @@
       #game-area {
         width: 600px;
         height: 600px;
-        border: 2px solid black;
+        position: relative;
+        background-color: #262626;
+        border: 5px solid #555555;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        border-radius: 3%;
+      }
+      #game-area {
+        width: 600px;
+        height: 600px;
         margin: 0 auto;
         position: relative;
+        background-color: #262626;
+        border: 5px solid #555555;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
       }
 
       .snake,
       .food {
+        position: absolute;
         width: 20px;
         height: 20px;
-        position: absolute;
+        border-radius: 50%;
+      }
+      .snake {
+        background-color: yellow;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        z-index: 1;
       }
 
-      .snake {
-        background-color: green;
+      .food {
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        z-index: 2;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.8rem;
       }
+
+    
+
+     
+
+     
+    
     </style>
   </head>
 
@@ -247,7 +289,7 @@
           drawFood();
           eatFood();
           checkCollision();
-        }, 1000);
+        }, 200);
       };
 
       document.addEventListener("keydown", changeDirection);
