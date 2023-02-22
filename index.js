@@ -4,17 +4,20 @@ const https = require("https");
 const { Server } = require("socket.io");
 const fs = require("fs");
 
+// Const options - key en crt
 const options = {
   key: fs.readFileSync("localhost.key"),
   cert: fs.readFileSync("localhost.crt"),
 };
 
+// Security for Https
 const server = https.createServer(options, app);
 const io = new Server(server);
 const port = process.env.PORT || 443;
 
 const clients = {};
 io.on("connection", (socket) => {
+
   clients[socket.id] = { id: socket.id };
   console.log("Socket connected", socket.id);
 

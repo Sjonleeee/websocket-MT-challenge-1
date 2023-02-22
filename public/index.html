@@ -4,100 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="/css/style.css" />
     <title>Socket.io Challenge 1</title>
-    <style>
-      html {
-        box-sizing: border-box;
-      }
-
-      body {
-        margin: 0;
-        padding: 0;
-        background-color: #202020;
-        font-family: sans-serif;
-        color: white;
-        font-size: 1.4rem;
-      }
-
-      *,
-      *:before,
-      *:after {
-        box-sizing: inherit;
-      }
-
-      .container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-      }
-
-      .qr__box {
-        display: flex;
-        justify-content: center;
-        flex-direction: column;
-        align-items: center;
-        width: 30%;
-        padding: 20px;
-        margin: 0 auto;
-        margin-block: 20px;
-      }
-
-      .cursor {
-        position: absolute;
-        width: 1rem;
-        height: 1rem;
-        margin-left: -0.5rem;
-        margin-right: -0.5rem;
-        background: red;
-        border-radius: 50% 50%;
-      }
-
-      /* snake game */
-      #game-area {
-        width: 600px;
-        height: 600px;
-        position: relative;
-        background-color: #262626;
-        border: 5px solid #555555;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-        border-radius: 3%;
-      }
-      #game-area {
-        width: 600px;
-        height: 600px;
-        margin: 0 auto;
-        position: relative;
-        background-color: #262626;
-        border: 5px solid #555555;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-      }
-
-      .snake,
-      .food {
-        position: absolute;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-      }
-      .snake {
-        background-color: yellow;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        z-index: 1;
-      }
-
-      .food {
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        z-index: 2;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 1.8rem;
-      }
-    </style>
   </head>
 
   <body>
+    <button id="start-button">Start Game</button>
     <div class="qr__box">
       <p>Scan the QR code to start</p>
       <div id="qr"></div>
@@ -286,14 +198,17 @@
         drawSnake();
         drawFood();
 
-        game = setInterval(() => {
-          gameArea.innerHTML = "";
-          moveSnake();
-          drawSnake();
-          drawFood();
-          eatFood();
-          checkCollision();
-        }, 200);
+        const startButton = document.getElementById("start-button");
+        startButton.addEventListener("click", () => {
+          game = setInterval(() => {
+            gameArea.innerHTML = "";
+            moveSnake();
+            drawSnake();
+            drawFood();
+            eatFood();
+            checkCollision();
+          }, 100);
+        });
       };
 
       document.addEventListener("keydown", changeDirection);
