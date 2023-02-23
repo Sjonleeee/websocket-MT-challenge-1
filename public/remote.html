@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="./css/remote.css" />
     <title>Socket.io Remote controller</title>
   </head>
-
   <body>
     <!-- <h4>Gyroscope</h4>
     <ul>
@@ -141,6 +140,18 @@
 
       const gyroscopeClick = (e) => {
         e.preventDefault();
+
+        if (typeof DeviceOrientationEvent.requestPermission === "function") {
+          DeviceOrientationEvent.requestPermission()
+            .then((response) => {
+              if (response == "granted") {
+                gyroscopeClick();
+              }
+            })
+            .catch(console.error);
+        } else {
+          gyroscopeClick();
+        }
 
         if (is_running) {
           window.removeEventListener("devicemotion", handleMotion);
