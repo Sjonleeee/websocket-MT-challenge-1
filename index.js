@@ -7,7 +7,7 @@ const fs = require("fs");
 // Const options - key en crt
 const options = {
   key: fs.readFileSync("localhost.key"),
-  cert: fs.readFileSync("./localhost.crt"),
+  cert: fs.readFileSync("localhost.crt"),
 };
 
 // Security for Https

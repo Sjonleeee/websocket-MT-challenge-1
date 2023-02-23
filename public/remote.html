@@ -9,7 +9,7 @@
   </head>
 
   <body>
-    <button id="btnGyroscope" role="button">Start the demo</button>
+    <button id="btnGyroscope">Start the demo</button>
 
     <button id="start-button">Start Game</button>
     <button id="reset-button">Reset Game</button>
@@ -21,9 +21,8 @@
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      const $messages = document.getElementById("messages");
-
       let socket = io("https://192.168.1.165/443");
+      let is_running = false;
 
       const init = () => {
         targetSocketId = getUrlParameter("id");
@@ -35,8 +34,6 @@
         socket.on("connect", () => {
           console.log(`Connected: ${socket.id}`);
         });
-        window.addEventListener(`mousemove`, (e) => handleMouseMove(e));
-        window.addEventListener(`touchmove`, (e) => handleTouchMove(e));
 
         // Listen for start-game event from client
         socket.on("start-game", (targetSocketId) => {
@@ -68,6 +65,7 @@
         const $btnUp = document.querySelector(`#btnUp`);
         const $btnDown = document.querySelector(`#btnDown`);
         const $btnRight = document.querySelector(`#btnRight`);
+        const $btnGyroscope = document.querySelector("#btnGyroscope");
 
         // Start button
         const $startButton = document.getElementById("start-button");
@@ -80,38 +78,32 @@
         $btnRight.addEventListener(`click`, (e) => handleClick(e));
         $startButton.addEventListener("click", (e) => handleStartButton(e));
         $resetButton.addEventListener("click", (e) => handleResetButton(e));
-
-        // gyros
-
-        let is_running = false;
-
-        const updateFieldIfNotNull = (gyroscopeId, value) => {
-          if (value != null)
-            document.getElementById(gyroscopeId).innerHTML = value.toFixed(0);
-        };
+        $btnGyroscope.addEventListener("click", (e) => handleGyroscopeClick(e));
 
         const handleMotion = (event) => {
-          if (socket.connected) {
-            const gyroscopeCoordinates = {
-              x: event.rotationRate.alpha,
-              y: event.rotationRate.beta,
-              z: event.rotationRate.gamma,
-            };
+          console.log("handelMotion");
+          socket.emit("gyroscope", targetSocketId, "sdfdsfgdfgdfhdfhdfh");
 
-            // motions for moving the snake
-            if (gyroscopeCoordinates.z < -100) {
-              socket.emit("gyroscope", targetSocketId, "right");
-            }
-            if (gyroscopeCoordinates.z > 100) {
-              socket.emit("gyroscope", targetSocketId, "left");
-            }
-            if (gyroscopeCoordinates.x > 100) {
-              socket.emit("gyroscope", targetSocketId, "down");
-            }
-            if (gyroscopeCoordinates.x < -100) {
-              socket.emit("gyroscope", targetSocketId, "up");
-            }
-          }
+          // console.log("handleMotion");
+          // if (socket.connected) {
+          //   const gyroscopeCoordinates = {
+          //     x: event.rotationRate.alpha,
+          //     z: event.rotationRate.gamma,
+          //   };
+          //   // motions for moving the snake
+          //   if (gyroscopeCoordinates.z < -100) {
+          //     socket.emit("gyroscope", targetSocketId, "right");
+          //   }
+          //   if (gyroscopeCoordinates.z > 100) {
+          //     socket.emit("gyroscope", targetSocketId, "left");
+          //   }
+          //   if (gyroscopeCoordinates.x > 100) {
+          //     socket.emit("gyroscope", targetSocketId, "down");
+          //   }
+          //   if (gyroscopeCoordinates.x < -100) {
+          //     socket.emit("gyroscope", targetSocketId, "up");
+          //   }
+          // }
         };
 
         const handleGyroscopeClick = (e) => {
@@ -126,9 +118,6 @@
             is_running = true;
           }
         };
-
-        let $btnGyroscope = document.querySelector("#btnGyroscope");
-        $btnGyroscope.addEventListener("click", (e) => handleGyroscopeClick(e));
       };
 
       const getUrlParameter = (name) => {
@@ -138,24 +127,6 @@
         return results === null
           ? false
           : decodeURIComponent(results[1].replace(/\+/g, " "));
-      };
-
-      const handleMouseMove = (e) => {
-        if (socket.connected) {
-          socket.emit(`update`, targetSocketId, {
-            x: e.clientX / window.innerWidth,
-            y: e.clientY / window.innerHeight,
-          });
-        }
-      };
-
-      const handleTouchMove = (e) => {
-        if (socket.connected) {
-          socket.emit(`update`, targetSocketId, {
-            x: e.touches[0].clientX / window.innerWidth,
-            y: e.touches[0].clientY / window.innerHeight,
-          });
-        }
       };
 
       const handleClick = (e) => {

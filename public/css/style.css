@@ -45,7 +45,7 @@ body {
   border-radius: 50% 50%;
 }
 
-/* snake game */
+/* Snake game */
 #game-area {
   background-repeat: no-repeat;
   background-size: cover;
