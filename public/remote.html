@@ -12,7 +12,6 @@
     <h4>Gyroscope</h4>
     <ul>
       <li>X-axis: <span id="Gyroscope_x">0</span><span>&deg;/s</span></li>
-      <li>Y-axis: <span id="Gyroscope_y">0</span><span>&deg;/s</span></li>
       <li>Z-axis: <span id="Gyroscope_z">0</span><span>&deg;/s</span></li>
     </ul>
 
@@ -28,6 +27,8 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
       let socket = io("https://192.168.1.165/443");
+      let is_running = false;
+      const $btnGyroscope = document.querySelector("#btnGyroscope");
 
       const init = () => {
         targetSocketId = getUrlParameter("id");
@@ -115,11 +116,6 @@
         }
       };
 
-      init();
-
-      let is_running = false;
-      const $btnGyroscope = document.querySelector("#btnGyroscope");
-
       const updateFieldIfNotNull = (gyroscopeId, value) => {
         if (value != null) {
           document.getElementById(gyroscopeId).innerHTML = value.toFixed(0);
@@ -129,7 +125,6 @@
       const handleMotion = (event) => {
         updateFieldIfNotNull("Gyroscope_z", event.rotationRate.alpha);
         updateFieldIfNotNull("Gyroscope_x", event.rotationRate.beta);
-        updateFieldIfNotNull("Gyroscope_y", event.rotationRate.gamma);
 
         if (socket.connected) {
           const gyroscopeCoordinates = {
@@ -165,6 +160,8 @@
       };
 
       $btnGyroscope.addEventListener("click", gyroscopeClick);
+
+      init();
     </script>
   </body>
 </html>
