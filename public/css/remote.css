@@ -16,6 +16,11 @@ body {
   flex-direction: column;
   justify-content: center;
   background-color: #262626;
+  color: white;
+}
+p {
+  font-size: 1.2rem;
+  text-align: center;
 }
 
 .cursor {
@@ -42,7 +47,7 @@ body {
   padding: 15px 15px;
   border: none;
   border-radius: 20%;
-  background-color: darksalmon;
+  background-color: lightgray;
   color: white;
   font-size: 3rem;
   cursor: pointer;
@@ -51,12 +56,13 @@ body {
 
 /* Start Button & reset button */
 #start-button,
-#reset-button {
+#reset-button,
+#btnGyroscope {
   display: block;
   margin: 0 auto;
   padding: 12px 24px;
   border: none;
-  background-color: darkgray;
+  background-color: lightgray;
   color: black;
   font-size: 16px;
   border-radius: 4px;

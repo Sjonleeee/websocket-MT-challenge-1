@@ -9,15 +9,16 @@
   </head>
 
   <body>
-    <h4>Gyroscope</h4>
+    <!-- <h4>Gyroscope</h4>
     <ul>
       <li>X-axis: <span id="Gyroscope_x">0</span><span>&deg;/s</span></li>
       <li>Z-axis: <span id="Gyroscope_z">0</span><span>&deg;/s</span></li>
-    </ul>
+    </ul> -->
 
-    <button id="btnGyroscope">Start the demo</button>
     <button id="start-button">Start Game</button>
     <button id="reset-button">Reset Game</button>
+    <button id="btnGyroscope">Use the gyroscope</button>
+    <p>Play with control panels or use gyroscope</p>
     <div class="container">
       <button id="btnLeft">◀️</button>
       <button id="btnUp">🔼</button>
@@ -116,16 +117,7 @@
         }
       };
 
-      const updateFieldIfNotNull = (gyroscopeId, value) => {
-        if (value != null) {
-          document.getElementById(gyroscopeId).innerHTML = value.toFixed(0);
-        }
-      };
-
       const handleMotion = (event) => {
-        updateFieldIfNotNull("Gyroscope_z", event.rotationRate.alpha);
-        updateFieldIfNotNull("Gyroscope_x", event.rotationRate.beta);
-
         if (socket.connected) {
           const gyroscopeCoordinates = {
             x: event.rotationRate.alpha,
@@ -152,9 +144,11 @@
 
         if (is_running) {
           window.removeEventListener("devicemotion", handleMotion);
+          $btnGyroscope.innerHTML = "Start the gyroscope";
           is_running = false;
         } else {
           window.addEventListener("devicemotion", handleMotion);
+          $btnGyroscope.innerHTML = "Stop the gyroscope";
           is_running = true;
         }
       };
