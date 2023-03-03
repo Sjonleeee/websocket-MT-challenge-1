@@ -220,6 +220,31 @@ const changeDirection = (event) => {
       break;
   }
 };
+
+let previousTime = 0;
+const startGame = () => {
+  initGame();
+  drawSnake();
+  drawFood();
+  previousTime = Date.now();
+  gameLoop();
+};
+
+const gameLoop = () => {
+  const currentTime = Date.now();
+  const deltaTime = currentTime - previousTime;
+  previousTime = currentTime;
+
+  gameArea.innerHTML = "";
+  moveSnake(deltaTime);
+  drawSnake();
+  drawFood();
+  eatFood();
+  checkCollision();
+
+  requestAnimationFrame(gameLoop);
+};
+
 const resetGame = () => {
   direction = "right";
   startSnake = [
@@ -231,30 +256,47 @@ const resetGame = () => {
   snake = startSnake;
   food = getFoodLocation();
   clearInterval(game);
-  game = setInterval(() => {
-    moveSnake();
-    eatFood();
-    checkCollision();
-    gameArea.innerHTML = "";
-    drawSnake();
-    drawFood();
-  }, 400);
+  previousTime = Date.now();
+  requestAnimationFrame(gameLoop);
 };
 
-const startGame = () => {
-  initGame();
-  drawSnake();
-  drawFood();
+// let previousTime = 0;
 
-  game = setInterval(() => {
-    gameArea.innerHTML = "";
-    moveSnake();
-    drawSnake();
-    drawFood();
-    eatFood();
-    checkCollision();
-  }, 400);
-};
+// const startGame = () => {
+//   initGame();
+//   drawSnake();
+//   drawFood();
+
+//   game = setInterval(() => {
+//     gameArea.innerHTML = "";
+//     moveSnake();
+//     drawSnake();
+//     drawFood();
+//     eatFood();
+//     checkCollision();
+//   }, 400);
+// };
+
+// const resetGame = () => {
+//   direction = "right";
+//   startSnake = [
+//     { x: 300, y: 300 },
+//     { x: 280, y: 300 },
+//     { x: 260, y: 300 },
+//   ];
+
+//   snake = startSnake;
+//   food = getFoodLocation();
+//   clearInterval(game);
+//   game = setInterval(() => {
+//     moveSnake();
+//     eatFood();
+//     checkCollision();
+//     gameArea.innerHTML = "";
+//     drawSnake();
+//     drawFood();
+//   }, 400);
+// };
 
 document.addEventListener("keydown", changeDirection);
 init();
