@@ -114,11 +114,6 @@ let startSnake = [
 const gameArea = document.getElementById("game-area");
 let snake;
 
-const initGame = () => {
-  snake = startSnake;
-  drawSnake();
-};
-
 const getFoodLocation = () => {
   const foodX = Math.floor(Math.random() * 30) * 20;
   const foodY = Math.floor(Math.random() * 30) * 20;
@@ -128,6 +123,12 @@ const getFoodLocation = () => {
 
 let food = getFoodLocation();
 let game;
+
+const initGame = () => {
+  snake = startSnake;
+  drawSnake();
+  moveSnake();
+};
 
 const drawSnake = () => {
   snake.forEach((segment) => {
@@ -221,7 +222,6 @@ const changeDirection = (event) => {
   }
 };
 
-let previousTime = 0;
 const startGame = () => {
   initGame();
   drawSnake();
@@ -230,20 +230,31 @@ const startGame = () => {
   gameLoop();
 };
 
-const gameLoop = () => {
-  const currentTime = Date.now();
+const speed = 600; // The desired speed in milliseconds
+let previousTime = performance.now();
+
+const gameLoop = (currentTime) => {
   const deltaTime = currentTime - previousTime;
   previousTime = currentTime;
 
-  gameArea.innerHTML = "";
-  moveSnake(deltaTime);
-  drawSnake();
-  drawFood();
-  eatFood();
-  checkCollision();
+  // Use the deltaTime variable to adjust the speed of the animation
+  const framesPerSecond = 30;
+  if (deltaTime >= framesPerSecond) {
+    // Update the game state and draw the game
+    gameArea.innerHTML = "";
+    moveSnake();
+    drawSnake();
+    drawFood();
+    eatFood();
+    checkCollision();
+  }
 
+  // Call requestAnimationFrame to loop the animation
   requestAnimationFrame(gameLoop);
 };
+
+// Call requestAnimationFrame to start the animation loop
+requestAnimationFrame(gameLoop);
 
 const resetGame = () => {
   direction = "right";
@@ -253,14 +264,11 @@ const resetGame = () => {
     { x: 260, y: 300 },
   ];
 
-  snake = startSnake;
+  snake = startSnake; // Copy the startSnake array
   food = getFoodLocation();
-  clearInterval(game);
-  previousTime = Date.now();
-  requestAnimationFrame(gameLoop);
+  previousTime = performance.now(); // Reset the time
+  requestAnimationFrame(gameLoop); // Restart the loop};
 };
-
-// let previousTime = 0;
 
 // const startGame = () => {
 //   initGame();
