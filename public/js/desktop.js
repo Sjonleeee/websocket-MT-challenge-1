@@ -1,9 +1,8 @@
 let direction = "right";
-console.log("direction:", direction);
 const $messages = document.getElementById("messages");
 
 const $url = document.getElementById("qr");
-let socket = io("https://192.168.1.165/443");
+let socket
 
 const init = () => {
   socket = io.connect("/");
@@ -100,17 +99,24 @@ const init = () => {
 
   // Reset game
   socket.on("reset-game", () => {
+    window.location.reload();
     console.log("reset");
   });
 };
 
-//  Snake Game
-const gameArea = document.getElementById("game-area");
-const snake = [
+const startSnake = [
   { x: 300, y: 300 },
   { x: 280, y: 300 },
   { x: 260, y: 300 },
 ];
+
+//  Snake Game
+const gameArea = document.getElementById("game-area");
+let snake;
+
+const initGame = () => {
+  snake = startSnake;
+};
 
 const getFoodLocation = () => {
   const foodX = Math.floor(Math.random() * 30) * 20;
@@ -215,6 +221,7 @@ const changeDirection = (event) => {
 };
 
 const startGame = () => {
+  initGame();
   drawSnake();
   drawFood();
 

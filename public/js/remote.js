@@ -55,8 +55,8 @@ const init = () => {
   $btnDown.addEventListener(`click`, (e) => handleClick(e));
   $btnRight.addEventListener(`click`, (e) => handleClick(e));
   $startButton.addEventListener("click", (e) => handleStartButton(e));
-  $resetButton.addEventListener("click", (e) => handleResetButton(e));
   $btnGyroscope.addEventListener("click", (e) => handleGyroscopeClick(e));
+  $resetButton.addEventListener("click", (e) => handleResetButton(e));
 };
 
 const getUrlParameter = (name) => {
