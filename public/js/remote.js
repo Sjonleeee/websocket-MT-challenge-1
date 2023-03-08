@@ -4,9 +4,22 @@ let stream;
 let peer;
 
 const $btnGyroscope = document.querySelector("#btnGyroscope");
-const $myAudio = document.getElementById("myAudio");
 
-const init = () => {
+const $myCamera = document.getElementById("myCamera");
+const $peerSelect = document.getElementById("peerSelect");
+
+// const $myAudio = document.getElementById("myAudio");
+
+const init = async () => {
+  initSocket();
+  $peerSelect.addEventListener("input", callSelectedPeer);
+  const constraints = { audio: true, video: { width: 1280, height: 720 } };
+  stream = await navigator.mediaDevices.getUserMedia(constraints);
+  $myCamera.srcObject = stream;
+  $myCamera.onloadedmetadata = () => $myCamera.play();
+};
+
+const initSocket = () => {
   targetSocketId = getUrlParameter("id");
   if (!targetSocketId) {
     alert(`Missing target ID in querystring`);
@@ -14,7 +27,7 @@ const init = () => {
   }
 
   // Audio
-  getMediaAudio(targetSocketId);
+  // getMediaAudio(targetSocketId);
 
   socket = io.connect("/");
   socket.on("connect", () => {
@@ -74,13 +87,44 @@ const init = () => {
 
 // --------------------------------
 
-// Audio
-const getMediaAudio = async (peerId) => {
-  const constrains = { audio: true, video: false };
-  stream = await navigator.mediaDevices.getUserMedia(constrains);
-  $myAudio.srcObject = stream;
-  callPeer(peerId);
+const updatePeerList = (clients) => {
+  $peerSelect.innerHTML =
+    '<option value="none">--- Select Peer To Call ---</option>';
+  for (const clientId in clients) {
+    const isMyOwnId = clientId === socket.id;
+    if (clients.hasOwnProperty(clientId) && !isMyOwnId) {
+      const client = clients[clientId];
+      const $option = document.createElement("option");
+      $option.value = clientId;
+      $option.textContent = clientId;
+      $peerSelect.appendChild($option);
+    }
+  }
 };
+
+const callSelectedPeer = async () => {
+  if ($peerSelect.value === "none") {
+    return;
+  }
+  console.log("call selected peer", $peerSelect.value);
+
+  callPeerVideo($peerSelect.value);
+};
+
+const callPeerVideo = async (peerId) => {
+  peer = new SimplePeer({ initiator: true, stream: stream });
+  peer.on("signal", (data) => {
+    socket.emit("signal", peerId, data);
+  });
+};
+
+// Audio
+// const getMediaAudio = async (peerId) => {
+//   const constrains = { audio: true, video: false };
+//   stream = await navigator.mediaDevices.getUserMedia(constrains);
+//   $myAudio.srcObject = stream;
+//   callPeer(peerId);
+// };
 
 // Calling peer
 const callPeer = async (peerId) => {

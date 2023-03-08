@@ -1,6 +1,8 @@
 let direction = "right";
+
 const $messages = document.getElementById("messages");
-const $otherAudio = document.getElementById("otherAudio");
+const $otherCamera = document.getElementById("otherCamera");
+// const $otherAudio = document.getElementById("otherAudio");
 
 const $url = document.getElementById("qr");
 let socket;
@@ -8,6 +10,9 @@ let peer;
 
 const init = async () => {
   initSocket();
+  $otherCamera.addEventListener("click", () => {
+    $otherCamera.play();
+  });
 };
 
 const initSocket = () => {
@@ -34,7 +39,7 @@ const initSocket = () => {
       socket.emit("signal", peerId, signal);
     });
     peer.on("stream", (stream) => {
-      $otherAudio.srcObject = stream;
+      $otherCamera.srcObject = stream;
     });
   };
 
