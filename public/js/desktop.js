@@ -1,10 +1,16 @@
 let direction = "right";
 const $messages = document.getElementById("messages");
+const $otherAudio = document.getElementById("otherAudio");
 
 const $url = document.getElementById("qr");
 let socket;
+let peer;
 
-const init = () => {
+const init = async () => {
+  initSocket();
+};
+
+const initSocket = () => {
   socket = io.connect("/");
   socket.on("connect", () => {
     console.log(`Connected: ${socket.id}`);
@@ -19,6 +25,29 @@ const init = () => {
     qr.addData(url);
     qr.make();
     document.getElementById("qr").innerHTML = qr.createImgTag(4);
+  });
+
+  // Answer peer
+  const answerPeerOffer = async (peerId) => {
+    peer = new SimplePeer();
+
+    peer.on("signal", (data) => {
+      socket.emit("signal", peerId, data);
+      console.log("signal", data);
+    });
+
+    peer.on("stream", (stream) => {
+      $otherAudio.srcObject = stream;
+    });
+  };
+  
+  // Signal
+  socket.on("signal", async (myId, signal, peerId) => {
+    console.log(`received signal from ${peerId} to ${myId}`);
+    if (signal.type === "offer") {
+      answerPeerOffer(myId, peerId, signal);
+    }
+    peer.signal(signal);
   });
 
   // Update
@@ -307,4 +336,5 @@ const resetGame = () => {
 // };
 
 document.addEventListener("keydown", changeDirection);
+
 init();

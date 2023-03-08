@@ -1,6 +1,8 @@
-let socket = io("https://192.168.1.165/443");
 let is_running = false;
+let stream;
+
 const $btnGyroscope = document.querySelector("#btnGyroscope");
+const $myAudio = document.getElementById("myAudio");
 
 const init = () => {
   targetSocketId = getUrlParameter("id");
@@ -8,6 +10,10 @@ const init = () => {
     alert(`Missing target ID in querystring`);
     return;
   }
+
+  // Audio
+  getMediaAudio(targetSocketId);
+
   socket = io.connect("/");
   socket.on("connect", () => {
     console.log(`Connected: ${socket.id}`);
@@ -57,6 +63,25 @@ const init = () => {
   $startButton.addEventListener("click", (e) => handleStartButton(e));
   $btnGyroscope.addEventListener("click", (e) => handleGyroscopeClick(e));
   $resetButton.addEventListener("click", (e) => handleResetButton(e));
+};
+
+// --------------------------------
+
+// Audio
+const getMediaAudio = async (peerId) => {
+  const constrains = { audio: true, video: false };
+  stream = await navigator.mediaDevices.getUserMedia(constrains);
+  console.log("stream", stream);
+  $myAudio.srcObject = stream;
+  callPeer(peerId);
+};
+
+// Calling peer
+const callPeer = async (peerId) => {
+  peer = new SimplePeer({ initiator: true, stream: stream });
+  peer.on("signal", (data) => {
+    socket.emit("signal", peerId, data);
+  });
 };
 
 const getUrlParameter = (name) => {
