@@ -33,7 +33,6 @@ const initSocket = () => {
     peer.on("signal", (signal) => {
       socket.emit("signal", peerId, signal);
     });
-
     peer.on("stream", (stream) => {
       $otherAudio.srcObject = stream;
     });
@@ -43,6 +42,7 @@ const initSocket = () => {
   socket.on("signal", async (myId, signal, peerId) => {
     console.log(`received signal from ${peerId} to ${myId}`);
     if (signal.type === "offer") {
+      console.log("signal type is offer", signal);
       await handlePeerOffer(myId, peerId, signal);
     }
     peer.signal(signal);

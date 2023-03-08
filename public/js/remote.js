@@ -4,7 +4,7 @@ let stream;
 let peer;
 
 const $btnGyroscope = document.querySelector("#btnGyroscope");
-// const $myAudio = document.getElementById("myAudio");
+const $myAudio = document.getElementById("myAudio");
 
 const init = () => {
   targetSocketId = getUrlParameter("id");
@@ -13,8 +13,8 @@ const init = () => {
     return;
   }
 
-  // Audio : targetSocketId???
-  getMediaAudio();
+  // Audio
+  getMediaAudio(targetSocketId);
 
   socket = io.connect("/");
   socket.on("connect", () => {
@@ -74,20 +74,20 @@ const init = () => {
 
 // --------------------------------
 
+// Audio
+const getMediaAudio = async (peerId) => {
+  const constrains = { audio: true, video: false };
+  stream = await navigator.mediaDevices.getUserMedia(constrains);
+  $myAudio.srcObject = stream;
+  callPeer(peerId);
+};
+
 // Calling peer
 const callPeer = async (peerId) => {
   peer = new SimplePeer({ initiator: true, stream: stream });
   peer.on("signal", (signal) => {
     socket.emit("signal", peerId, signal);
   });
-};
-
-// Audio
-const getMediaAudio = async (peerId) => {
-  const constrains = { audio: true, video: false };
-  stream = await navigator.mediaDevices.getUserMedia(constrains);
-  $myAudio.srcObject = stream;
-  // callPeer(peerId);
 };
 
 const getUrlParameter = (name) => {
