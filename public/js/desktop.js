@@ -27,25 +27,23 @@ const initSocket = () => {
     document.getElementById("qr").innerHTML = qr.createImgTag(4);
   });
 
-  // Answer peer
-  const answerPeerOffer = async (peerId) => {
-    peer = new SimplePeer();
-
-    peer.on("signal", (data) => {
-      socket.emit("signal", peerId, data);
-      console.log("signal", data);
+  // Handle peer
+  const handlePeerOffer = async (myPeerId, offer, peerId) => {
+    peer = new SimplePeer({ initiator: false });
+    peer.on("signal", (signal) => {
+      socket.emit("signal", peerId, signal);
     });
 
     peer.on("stream", (stream) => {
       $otherAudio.srcObject = stream;
     });
   };
-  
+
   // Signal
   socket.on("signal", async (myId, signal, peerId) => {
     console.log(`received signal from ${peerId} to ${myId}`);
     if (signal.type === "offer") {
-      answerPeerOffer(myId, peerId, signal);
+      await handlePeerOffer(myId, peerId, signal);
     }
     peer.signal(signal);
   });

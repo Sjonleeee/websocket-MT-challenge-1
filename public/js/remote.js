@@ -1,8 +1,10 @@
 let is_running = false;
 let stream;
 
+let peer;
+
 const $btnGyroscope = document.querySelector("#btnGyroscope");
-const $myAudio = document.getElementById("myAudio");
+// const $myAudio = document.getElementById("myAudio");
 
 const init = () => {
   targetSocketId = getUrlParameter("id");
@@ -11,8 +13,8 @@ const init = () => {
     return;
   }
 
-  // Audio
-  getMediaAudio(targetSocketId);
+  // Audio : targetSocketId???
+  getMediaAudio();
 
   socket = io.connect("/");
   socket.on("connect", () => {
@@ -63,25 +65,29 @@ const init = () => {
   $startButton.addEventListener("click", (e) => handleStartButton(e));
   $btnGyroscope.addEventListener("click", (e) => handleGyroscopeClick(e));
   $resetButton.addEventListener("click", (e) => handleResetButton(e));
+
+  // peer: receive signal to myId from peerId
+  socket.on("signal", (myId, signal, peerId) => {
+    peer.signal(signal);
+  });
 };
 
 // --------------------------------
+
+// Calling peer
+const callPeer = async (peerId) => {
+  peer = new SimplePeer({ initiator: true, stream: stream });
+  peer.on("signal", (signal) => {
+    socket.emit("signal", peerId, signal);
+  });
+};
 
 // Audio
 const getMediaAudio = async (peerId) => {
   const constrains = { audio: true, video: false };
   stream = await navigator.mediaDevices.getUserMedia(constrains);
-  console.log("stream", stream);
   $myAudio.srcObject = stream;
-  callPeer(peerId);
-};
-
-// Calling peer
-const callPeer = async (peerId) => {
-  peer = new SimplePeer({ initiator: true, stream: stream });
-  peer.on("signal", (data) => {
-    socket.emit("signal", peerId, data);
-  });
+  // callPeer(peerId);
 };
 
 const getUrlParameter = (name) => {

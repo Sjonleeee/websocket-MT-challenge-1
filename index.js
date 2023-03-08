@@ -31,8 +31,11 @@ io.on("connection", (socket) => {
     clients[socket.id].y = data.y;
     io.to(targetSocketId).emit("update", data);
   });
-  
+
   socket.on("signal", (peerId, signal) => {
+    if (!clients[peerId]) {
+      return;
+    }
     console.log(`Received signal from ${socket.id} to ${peerId}`);
     io.to(peerId).emit("signal", peerId, signal, socket.id);
   });
