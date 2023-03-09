@@ -5,9 +5,17 @@ const $otherAudio = document.getElementById("otherAudio");
 const $url = document.getElementById("qr");
 let socket;
 let peer;
+let testStream;
 
 const init = async () => {
   initSocket();
+  $otherAudio.addEventListener("play", () => {
+    console.log("Playback started", testStream);
+  });
+
+  $otherAudio.addEventListener("error", (error) => {
+    console.log("Error occurred during playback:", error);
+  });
 };
 
 const initSocket = () => {
@@ -28,13 +36,34 @@ const initSocket = () => {
   });
 
   // Handle peer
-  const handlePeerOffer = async (myPeerId, offer, peerId) => {
-    peer = new SimplePeer({ initiator: false });
+  const handlePeerOffer = async (myPeerId, peerId, signal) => {
+    peer = new SimplePeer({ initiator: false, objectMode: true });
     peer.on("signal", (signal) => {
       socket.emit("signal", peerId, signal);
     });
+
     peer.on("stream", (stream) => {
+      console.log("Audio stream received", stream);
+      testStream = stream;
+
       $otherAudio.srcObject = stream;
+      console.log("Audio srcObject", $otherAudio.srcObject);
+    });
+
+    // PEER ON STARTGAME
+    peer.on("data", (data) => {
+      console.log("peer received data"), data;
+      try {
+        data = JSON.parse(data);
+
+        if (data.type === "startGame") {
+          console.log("startGame");
+          startGame();
+        }
+        return;
+      } catch (error) {
+        console.log("error", error);
+      }
     });
   };
 
@@ -118,11 +147,11 @@ const initSocket = () => {
     }
   });
 
-  // Start the game button
-  socket.on("start-game", () => {
-    console.log("start");
-    startGame();
-  });
+  // // Start the game button
+  // socket.on("start-game", () => {
+  //   console.log("start");
+  //   startGame();
+  // });
 
   // Reset game
   socket.on("reset-game", () => {
@@ -249,68 +278,39 @@ const changeDirection = (event) => {
   }
 };
 
-const startGame = () => {
-  initGame();
-  drawSnake();
-  drawFood();
-  previousTime = Date.now();
-  gameLoop();
-};
-
-const speed = 600; // The desired speed in milliseconds
-let previousTime = performance.now();
-
-const gameLoop = (currentTime) => {
-  const deltaTime = currentTime - previousTime;
-  previousTime = currentTime;
-
-  // Use the deltaTime variable to adjust the speed of the animation
-  const framesPerSecond = 30;
-  if (deltaTime >= framesPerSecond) {
-    // Update the game state and draw the game
-    gameArea.innerHTML = "";
-    moveSnake();
-    drawSnake();
-    drawFood();
-    eatFood();
-    checkCollision();
-  }
-
-  // Call requestAnimationFrame to loop the animation
-  requestAnimationFrame(gameLoop);
-};
-
-// Call requestAnimationFrame to start the animation loop
-requestAnimationFrame(gameLoop);
-
-const resetGame = () => {
-  direction = "right";
-  startSnake = [
-    { x: 300, y: 300 },
-    { x: 280, y: 300 },
-    { x: 260, y: 300 },
-  ];
-
-  snake = startSnake; // Copy the startSnake array
-  food = getFoodLocation();
-  previousTime = performance.now(); // Reset the time
-  requestAnimationFrame(gameLoop); // Restart the loop};
-};
-
 // const startGame = () => {
 //   initGame();
 //   drawSnake();
 //   drawFood();
+//   previousTime = Date.now();
+//   gameLoop();
+// };
 
-//   game = setInterval(() => {
+// const speed = 600; // The desired speed in milliseconds
+// let previousTime = performance.now();
+
+// const gameLoop = (currentTime) => {
+//   const deltaTime = currentTime - previousTime;
+//   previousTime = currentTime;
+
+//   // Use the deltaTime variable to adjust the speed of the animation
+//   const framesPerSecond = 30;
+//   if (deltaTime >= framesPerSecond) {
+//     // Update the game state and draw the game
 //     gameArea.innerHTML = "";
 //     moveSnake();
 //     drawSnake();
 //     drawFood();
 //     eatFood();
 //     checkCollision();
-//   }, 400);
+//   }
+
+//   // Call requestAnimationFrame to loop the animation
+//   requestAnimationFrame(gameLoop);
 // };
+
+// // Call requestAnimationFrame to start the animation loop
+// requestAnimationFrame(gameLoop);
 
 // const resetGame = () => {
 //   direction = "right";
@@ -320,18 +320,55 @@ const resetGame = () => {
 //     { x: 260, y: 300 },
 //   ];
 
-//   snake = startSnake;
+//   snake = startSnake; // Copy the startSnake array
 //   food = getFoodLocation();
-//   clearInterval(game);
-//   game = setInterval(() => {
-//     moveSnake();
-//     eatFood();
-//     checkCollision();
-//     gameArea.innerHTML = "";
-//     drawSnake();
-//     drawFood();
-//   }, 400);
+//   previousTime = performance.now(); // Reset the time
+//   requestAnimationFrame(gameLoop); // Restart the loop};
 // };
+
+// const startGame = () => {
+//   initGame();
+//   drawSnake();
+//   drawFood();
+// };
+
+// ----------------------
+
+const startGame = () => {
+  initGame();
+  drawSnake();
+  drawFood();
+
+  game = setInterval(() => {
+    gameArea.innerHTML = "";
+    moveSnake();
+    drawSnake();
+    drawFood();
+    eatFood();
+    checkCollision();
+  }, 400);
+};
+
+const resetGame = () => {
+  direction = "right";
+  startSnake = [
+    { x: 300, y: 300 },
+    { x: 280, y: 300 },
+    { x: 260, y: 300 },
+  ];
+
+  snake = startSnake;
+  food = getFoodLocation();
+  clearInterval(game);
+  game = setInterval(() => {
+    moveSnake();
+    eatFood();
+    checkCollision();
+    gameArea.innerHTML = "";
+    drawSnake();
+    drawFood();
+  }, 400);
+};
 
 document.addEventListener("keydown", changeDirection);
 
