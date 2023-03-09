@@ -17,15 +17,6 @@ const init = async () => {
   initSocket();
 };
 
-// $btnGyroscope.addEventListener("click", () => {
-//   if (peer) {
-//     const data = {
-//       type: "playGyrscope",
-//     };
-//     peer.send(JSON.stringify(data));
-//   }
-// });
-
 const initSocket = () => {
   socket = io.connect("/");
   socket.on("connect", () => {
@@ -38,7 +29,6 @@ const initSocket = () => {
   const $btnUp = document.querySelector(`#btnUp`);
   const $btnDown = document.querySelector(`#btnDown`);
   const $btnRight = document.querySelector(`#btnRight`);
-  const $btnGyroscope = document.querySelector("#btnGyroscope");
 
   // Start button
   const $startButton = document.querySelector("#start-button");
@@ -50,7 +40,6 @@ const initSocket = () => {
   $btnDown.addEventListener(`click`, (e) => handleClick(e));
   $btnRight.addEventListener(`click`, (e) => handleClick(e));
   $startButton.addEventListener("click", (e) => handleStartButton(e));
-  $btnGyroscope.addEventListener("click", (e) => handleGyroscopeClick(e));
   $resetButton.addEventListener("click", (e) => handleResetButton(e));
 
   // peer: receive signal to myId from peerId
@@ -86,11 +75,8 @@ const getUrlParameter = (name) => {
 };
 
 const handleClick = (e) => {
-  if (peer) {
-    const data = {
-      type: "handleClick",
-    };
-    peer.send(JSON.stringify(data));
+  if (socket.connected) {
+    socket.emit("click", targetSocketId, e.target.id);
   }
 };
 
@@ -105,89 +91,5 @@ const handleResetButton = (e) => {
   const data = { type: "resetGame" };
   peer.send(JSON.stringify(data));
 };
-
-// const handleGyroscopeClick = (e) => {
-//   const data = { type: "gyroscopeGame" };
-//   handleMotion(e);
-//   gyroscopeCoordinates();
-//   console.log("gyroscope clicked");
-//   peer.send(JSON.stringify(data));
-// };
-
-// const handleMotion = (e) => {
-//   if (peer) {
-//     const gyroscopeCoordinates = {
-//       x: e.rotationRate.alpha,
-//       z: e.rotationRate.gamma,
-//     };
-//     // motions for moving the snake
-//     if (gyroscopeCoordinates.z < -100) {
-//       const data = { type: "gyroscopeGame", direction: "right" };
-//       peer.send(JSON.stringify(data));
-//     }
-//     if (gyroscopeCoordinates.z > 100) {
-//       const data = { type: "gyroscopeGame", direction: "left" };
-//       peer.send(JSON.stringify(data));
-//     }
-//     if (gyroscopeCoordinates.x > 100) {
-//       const data = { type: "gyroscopeGame", direction: "down" };
-//       peer.send(JSON.stringify(data));
-//     }
-//     if (gyroscopeCoordinates.x < -100) {
-//       const data = { type: "gyroscopeGame", direction: "up" };
-//       peer.send(JSON.stringify(data));
-//     }
-//   }
-// };
-
-const handleMotion = (event) => {
-if (socket.connected) {
-  const gyroscopeCoordinates = {
-    x: event.rotationRate.alpha,
-    z: event.rotationRate.gamma,
-  };
-  // motions for moving the snake
-  if (gyroscopeCoordinates.z < -100) {
-    socket.emit("gyroscope", targetSocketId, "right");
-  }
-  if (gyroscopeCoordinates.z > 100) {
-    socket.emit("gyroscope", targetSocketId, "left");
-  }
-  if (gyroscopeCoordinates.x > 100) {
-    socket.emit("gyroscope", targetSocketId, "down");
-  }
-  if (gyroscopeCoordinates.x < -100) {
-    socket.emit("gyroscope", targetSocketId, "up");
-  }
-}
-};
-
-const gyroscopeClick = (e) => {
-  e.preventDefault();
-
-  if (typeof DeviceOrientationEvent.requestPermission === "function") {
-    DeviceOrientationEvent.requestPermission()
-      .then((response) => {
-        if (response == "granted") {
-          gyroscopeClick();
-        }
-      })
-      .catch(console.error);
-  } else {
-    gyroscopeClick();
-  }
-
-  if (is_running) {
-    window.removeEventListener("devicemotion", handleMotion);
-    $btnGyroscope.innerHTML = "Start the gyroscope";
-    is_running = false;
-  } else {
-    window.addEventListener("devicemotion", handleMotion);
-    $btnGyroscope.innerHTML = "Stop the gyroscope";
-    is_running = true;
-  }
-};
-
-$btnGyroscope.addEventListener("click", gyroscopeClick);
 
 init();

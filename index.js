@@ -40,23 +40,13 @@ io.on("connection", (socket) => {
     io.to(peerId).emit("signal", peerId, signal, socket.id);
   });
 
-  // Left right up down buttons
-  socket.on("click", (targetSocketId, data) => {
-    if (!clients[targetSocketId]) {
-      return;
-    }
-    io.to(targetSocketId).emit("click", data);
-  });
-
-  
-  // gyroscope
-  socket.on("gyroscope", (targetSocketId, direction) => {
-    console.log(direction);
-    if (!clients[targetSocketId]) {
-      return;
-    }
-    io.to(targetSocketId).emit("gyroscope", direction);
-  });
+  // // Left right up down buttons
+  // socket.on("click", (targetSocketId, data) => {
+  //   if (!clients[targetSocketId]) {
+  //     return;
+  //   }
+  //   io.to(targetSocketId).emit("click", data);
+  // });
 
   socket.on("disconnect", () => {
     delete clients[socket.id];

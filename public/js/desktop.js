@@ -5,12 +5,11 @@ const $otherAudio = document.getElementById("otherAudio");
 const $url = document.getElementById("qr");
 let socket;
 let peer;
-let testStream;
 
 const init = async () => {
   initSocket();
   $otherAudio.addEventListener("play", () => {
-    console.log("Playback started", testStream);
+    console.log("play");
   });
 
   $otherAudio.addEventListener("error", (error) => {
@@ -44,8 +43,6 @@ const initSocket = () => {
 
     peer.on("stream", (stream) => {
       console.log("Audio stream received", stream);
-      testStream = stream;
-
       $otherAudio.srcObject = stream;
       console.log("Audio srcObject", $otherAudio.srcObject);
     });
@@ -132,41 +129,6 @@ const initSocket = () => {
         break;
     }
   });
-
-  // Gyroscope directions buttons
-  socket.on("gyroscope", (dir) => {
-    console.log(dir);
-    switch (dir) {
-      case "left":
-        if (direction !== "right") {
-          direction = "left";
-        }
-        break;
-      case "up":
-        if (direction !== "down") {
-          direction = "up";
-        }
-        break;
-
-      case "right":
-        if (direction !== "left") {
-          direction = "right";
-        }
-        break;
-
-      case "down":
-        if (direction !== "up") {
-          direction = "down";
-        }
-        break;
-    }
-  });
-
-  // // Start the game button
-  // socket.on("start-game", () => {
-  //   console.log("start");
-  //   startGame();
-  // });
 };
 
 let startSnake = [
