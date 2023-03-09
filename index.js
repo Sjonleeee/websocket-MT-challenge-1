@@ -48,30 +48,15 @@ io.on("connection", (socket) => {
     io.to(targetSocketId).emit("click", data);
   });
 
-  // Start game
-  socket.on("start-game", (targetSocketId, data) => {
-    if (!clients[targetSocketId]) {
-      return;
-    }
-    io.to(targetSocketId).emit("start-game", data);
-  });
-
-  // reset game
-  socket.on("reset-game", (targetSocketId, data) => {
-    if (!clients[targetSocketId]) {
-      return;
-    }
-    io.to(targetSocketId).emit("reset-game", data);
-  });
-
-  // gyroscope
-  socket.on("gyroscope", (targetSocketId, direction) => {
-    console.log(direction);
-    if (!clients[targetSocketId]) {
-      return;
-    }
-    io.to(targetSocketId).emit("gyroscope", direction);
-  });
+  
+  // // gyroscope
+  // socket.on("gyroscope", (targetSocketId, direction) => {
+  //   console.log(direction);
+  //   if (!clients[targetSocketId]) {
+  //     return;
+  //   }
+  //   io.to(targetSocketId).emit("gyroscope", direction);
+  // });
 
   socket.on("disconnect", () => {
     delete clients[socket.id];

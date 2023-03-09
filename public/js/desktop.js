@@ -81,6 +81,22 @@ const initSocket = () => {
         console.log("error", error);
       }
     });
+
+    // PEER ON GRYSCOPE
+    peer.on("data", (data) => {
+      console.log("peer received data"), data;
+      try {
+        data = JSON.parse(data);
+
+        if (data.type === "gyroscopeGame") {
+          console.log("Gyroscope game");
+          gyroscopeClick();
+        }
+        return;
+      } catch (error) {
+        console.log("error", error);
+      }
+    });
   };
 
   // Signal
@@ -134,46 +150,72 @@ const initSocket = () => {
     }
   });
 
-  // gyroscope directions buttons
-  socket.on("gyroscope", (dir) => {
-    console.log(dir);
-    switch (dir) {
-      case "left":
-        if (direction !== "right") {
-          direction = "left";
-        }
-        break;
-      case "up":
-        if (direction !== "down") {
-          direction = "up";
-        }
-        break;
-
-      case "right":
-        if (direction !== "left") {
-          direction = "right";
-        }
-        break;
-
-      case "down":
-        if (direction !== "up") {
-          direction = "down";
-        }
-        break;
+  peer.on("data", (data) => {
+    try {
+      data = JSON.parse(data);
+      if (data.type === "gyroscope") {
+        console.log("Received gyroscope message:", data.direction);
+        // Handle gyroscope message here
+        handleGyroscopeMessage(data.direction);
+      }
+    } catch (error) {
+      console.log("Error parsing incoming data:", error);
     }
   });
 
-  // // Start the game button
-  // socket.on("start-game", () => {
-  //   console.log("start");
-  //   startGame();
-  // });
+  // Listen for gyroscope events
+  window.addEventListener("deviceorientation", (event) => {
+    const gyroscopeCoordinates = {
+      x: event.rotationRate.alpha,
+      z: event.rotationRate.gamma,
+    };
 
-  // Reset game
-  socket.on("reset-game", () => {
-    resetGame();
-    console.log("reset");
+    // Determine gyroscope direction based on coordinates
+    if (gyroscopeCoordinates.z < -100) {
+      sendGyroscopeData("right");
+    } else if (gyroscopeCoordinates.z > 100) {
+      sendGyroscopeData("left");
+    } else if (gyroscopeCoordinates.x > 100) {
+      sendGyroscopeData("down");
+    } else if (gyroscopeCoordinates.x < -100) {
+      sendGyroscopeData("up");
+    }
   });
+
+  // Define a function to send gyroscope data over the data channel
+  const sendGyroscopeData = (direction) => {
+    const data = { type: "gyroscope", direction: direction };
+    peer.send(JSON.stringify(data));
+  };
+
+  // gyroscope directions buttons
+  // socket.on("gyroscope", (dir) => {
+  //   console.log(dir);
+  //   switch (dir) {
+  //     case "left":
+  //       if (direction !== "right") {
+  //         direction = "left";
+  //       }
+  //       break;
+  //     case "up":
+  //       if (direction !== "down") {
+  //         direction = "up";
+  //       }
+  //       break;
+
+  //     case "right":
+  //       if (direction !== "left") {
+  //         direction = "right";
+  //       }
+  //       break;
+
+  //     case "down":
+  //       if (direction !== "up") {
+  //         direction = "down";
+  //       }
+  //       break;
+  //   }
+  // });
 };
 
 let startSnake = [

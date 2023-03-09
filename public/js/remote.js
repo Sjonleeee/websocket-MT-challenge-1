@@ -33,31 +33,6 @@ const initSocket = () => {
     callPeer(targetSocketId);
   });
 
-  // // Listen for start-game event from client
-  // socket.on("start-game", (targetSocketId) => {
-  //   // Find the socket with the specified ID
-  //   const targetSocket = io.sockets.sockets.get(targetSocketId);
-
-  //   if (!targetSocket) {
-  //     console.log(`Socket with ID ${targetSocketId} not found`);
-  //     return;
-  //   }
-  //   // Send start-game event to target socket
-  //   targetSocket.emit("start-game");
-  // });
-
-  socket.on("reset-game", (targetSocketId) => {
-    // Find the socket with the specified ID
-    const targetSocket = io.sockets.sockets.get(targetSocketId);
-
-    if (!targetSocket) {
-      console.log(`Socket with ID ${targetSocketId} not found`);
-      return;
-    }
-    // Send start-game event to target socket
-    targetSocket.emit("reset-game");
-  });
-
   // Remote controller
   const $btnLeft = document.querySelector(`#btnLeft`);
   const $btnUp = document.querySelector(`#btnUp`);
@@ -132,26 +107,52 @@ const handleResetButton = (e) => {
 };
 
 const handleMotion = (event) => {
-  if (socket.connected) {
+  if (peer.connected) {
     const gyroscopeCoordinates = {
       x: event.rotationRate.alpha,
       z: event.rotationRate.gamma,
     };
     // motions for moving the snake
     if (gyroscopeCoordinates.z < -100) {
-      socket.emit("gyroscope", targetSocketId, "right");
+      const data = { type: "gyroscopeGame", direction: "right" };
+      peer.send(JSON.stringify(data));
     }
     if (gyroscopeCoordinates.z > 100) {
-      socket.emit("gyroscope", targetSocketId, "left");
+      const data = { type: "gyroscopeGame", direction: "left" };
+      peer.send(JSON.stringify(data));
     }
     if (gyroscopeCoordinates.x > 100) {
-      socket.emit("gyroscope", targetSocketId, "down");
+      const data = { type: "gyroscopeGame", direction: "down" };
+      peer.send(JSON.stringify(data));
     }
     if (gyroscopeCoordinates.x < -100) {
-      socket.emit("gyroscope", targetSocketId, "up");
+      const data = { type: "gyroscopeGame", direction: "up" };
+      peer.send(JSON.stringify(data));
     }
   }
 };
+
+// const handleMotion = (event) => {
+// if (socket.connected) {
+//   const gyroscopeCoordinates = {
+//     x: event.rotationRate.alpha,
+//     z: event.rotationRate.gamma,
+//   };
+//   // motions for moving the snake
+//   if (gyroscopeCoordinates.z < -100) {
+//     socket.emit("gyroscope", targetSocketId, "right");
+//   }
+//   if (gyroscopeCoordinates.z > 100) {
+//     socket.emit("gyroscope", targetSocketId, "left");
+//   }
+//   if (gyroscopeCoordinates.x > 100) {
+//     socket.emit("gyroscope", targetSocketId, "down");
+//   }
+//   if (gyroscopeCoordinates.x < -100) {
+//     socket.emit("gyroscope", targetSocketId, "up");
+//   }
+// }
+// };
 
 const gyroscopeClick = (e) => {
   e.preventDefault();
