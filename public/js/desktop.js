@@ -65,6 +65,22 @@ const initSocket = () => {
         console.log("error", error);
       }
     });
+
+    // PEER ON RESET GAME
+    peer.on("data", (data) => {
+      console.log("peer received data"), data;
+      try {
+        data = JSON.parse(data);
+
+        if (data.type === "resetGame") {
+          console.log("Reset game");
+          resetGame();
+        }
+        return;
+      } catch (error) {
+        console.log("error", error);
+      }
+    });
   };
 
   // Signal

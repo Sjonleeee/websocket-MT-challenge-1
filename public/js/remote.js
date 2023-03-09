@@ -4,35 +4,47 @@ let stream;
 let peer;
 
 const $btnGyroscope = document.querySelector("#btnGyroscope");
-const $myAudio = document.getElementById("myAudio");
+const $myAudio = document.querySelector("#myAudio");
 
-const init = () => {
+const init = async () => {
   targetSocketId = getUrlParameter("id");
   if (!targetSocketId) {
     alert(`Missing target ID in querystring`);
     return;
   }
-
   // Audio
-  getMediaAudio(targetSocketId);
+  await getMediaAudio(targetSocketId);
+  initSocket();
+};
 
+// $btnGyroscope.addEventListener("click", () => {
+//   if (peer) {
+//     const data = {
+//       type: "playGyrscope",
+//     };
+//     peer.send(JSON.stringify(data));
+//   }
+// });
+
+const initSocket = () => {
   socket = io.connect("/");
   socket.on("connect", () => {
     console.log(`Connected: ${socket.id}`);
+    callPeer(targetSocketId);
   });
 
-  // Listen for start-game event from client
-  socket.on("start-game", (targetSocketId) => {
-    // Find the socket with the specified ID
-    const targetSocket = io.sockets.sockets.get(targetSocketId);
+  // // Listen for start-game event from client
+  // socket.on("start-game", (targetSocketId) => {
+  //   // Find the socket with the specified ID
+  //   const targetSocket = io.sockets.sockets.get(targetSocketId);
 
-    if (!targetSocket) {
-      console.log(`Socket with ID ${targetSocketId} not found`);
-      return;
-    }
-    // Send start-game event to target socket
-    targetSocket.emit("start-game");
-  });
+  //   if (!targetSocket) {
+  //     console.log(`Socket with ID ${targetSocketId} not found`);
+  //     return;
+  //   }
+  //   // Send start-game event to target socket
+  //   targetSocket.emit("start-game");
+  // });
 
   socket.on("reset-game", (targetSocketId) => {
     // Find the socket with the specified ID
@@ -79,12 +91,11 @@ const getMediaAudio = async (peerId) => {
   const constrains = { audio: true, video: false };
   stream = await navigator.mediaDevices.getUserMedia(constrains);
   $myAudio.srcObject = stream;
-  callPeer(peerId);
 };
 
 // Calling peer
-const callPeer = async (peerId) => {
-  peer = new SimplePeer({ initiator: true, stream: stream });
+const callPeer = (peerId) => {
+  peer = new SimplePeer({ initiator: true, stream: stream, objectMode: true });
   peer.on("signal", (signal) => {
     socket.emit("signal", peerId, signal);
   });
@@ -100,23 +111,24 @@ const getUrlParameter = (name) => {
 };
 
 const handleClick = (e) => {
-  if (socket.connected) {
-    socket.emit("click", targetSocketId, e.target.id);
+  if (peer) {
+    const data = {
+      type: "handleClick",
+    };
+    peer.send(JSON.stringify(data));
   }
 };
 
 const handleStartButton = (e) => {
-  if (socket.connected) {
-    socket.emit("start-game", targetSocketId);
-    console.log("Start game");
+  if (peer) {
+    const data = { type: "startGame" };
+    peer.send(JSON.stringify(data));
   }
 };
 
 const handleResetButton = (e) => {
-  if (socket.connected) {
-    socket.emit("reset-game", targetSocketId);
-    console.log("Reset game");
-  }
+  const data = { type: "resetGame" };
+  peer.send(JSON.stringify(data));
 };
 
 const handleMotion = (event) => {
