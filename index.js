@@ -49,14 +49,14 @@ io.on("connection", (socket) => {
   });
 
   
-  // // gyroscope
-  // socket.on("gyroscope", (targetSocketId, direction) => {
-  //   console.log(direction);
-  //   if (!clients[targetSocketId]) {
-  //     return;
-  //   }
-  //   io.to(targetSocketId).emit("gyroscope", direction);
-  // });
+  // gyroscope
+  socket.on("gyroscope", (targetSocketId, direction) => {
+    console.log(direction);
+    if (!clients[targetSocketId]) {
+      return;
+    }
+    io.to(targetSocketId).emit("gyroscope", direction);
+  });
 
   socket.on("disconnect", () => {
     delete clients[socket.id];
