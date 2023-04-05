@@ -20,6 +20,7 @@ const gameArea = document.getElementById("game-area");
 let snake;
 let food;
 let game;
+let score = 0;
 
 const initGame = () => {
   snake = startSnake;
@@ -54,20 +55,8 @@ const moveSnake = () => {
       break;
   }
 
-  // check if the snake hits the edge of the canvas
-  if (
-    newHead.x < 0 ||
-    newHead.x >= gameArea.offsetWidth ||
-    newHead.y < 0 ||
-    newHead.y >= gameArea.offsetHeight
-  ) {
-    clearInterval(game);
-    gameArea.innerHTML = "";
-
-    const gameOver = document.createElement("h1");
-    gameOver.innerHTML = "Game Over";
-    gameOver.style.textAlign = "center";
-    gameArea.appendChild(gameOver);
+  if (checkCollision(newHead)) {
+    gameOver();
     return;
   }
 
@@ -94,6 +83,16 @@ const checkCollision = (head) => {
   return false;
 };
 
+const gameOver = () => {
+  clearInterval(game);
+  gameArea.innerHTML = "";
+  const gameOver = document.createElement("h1");
+  gameOver.innerHTML = "Game Over";
+  gameOver.style.textAlign = "center";
+  gameArea.appendChild(gameOver);
+  resetButton.style.display = "block";
+};
+
 const getFoodLocation = () => {
   const foodX = Math.floor(Math.random() * 30) * 20;
   const foodY = Math.floor(Math.random() * 30) * 20;
@@ -113,6 +112,7 @@ const drawFood = () => {
 const startButton = document.getElementById("start-button");
 
 const startGame = () => {
+  startButton.style.display = "none"; // hide start button
   clearInterval(game);
   gameArea.innerHTML = ""; // clear game area before drawing
   snake = startSnake;
@@ -127,6 +127,8 @@ const startGame = () => {
     if (snake[0].x === food.x && snake[0].y === food.y) {
       snake.push(snake[snake.length - 1]);
       food = getFoodLocation();
+      score += 1;
+      document.getElementById("score").innerHTML = "Score: " + score;
     }
   }, 100);
 };
@@ -146,6 +148,10 @@ const resetGame = () => {
   gameArea.innerHTML = "";
   drawSnake();
   drawFood();
+  score = 0;
+  document.getElementById("score").innerHTML = "Score: " + score;
+  startButton.style.display = "block"; // show start button
+  resetButton.style.display = "none"; // hide reset button
 };
 resetButton.addEventListener("click", resetGame);
 
