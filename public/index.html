@@ -5,30 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/remote.css" />
+
     <title>Socket.io Challenge 1</title>
   </head>
 
   <body>
-    <div class="qr__box">
-      <p>Scan the QR code to start</p>
-      <div id="qr"></div>
-    </div>
-    <div id="game-over"></div>
     <div id="game-area"></div>
+    <button id="start-button">Start Game</button>
+    <button id="reset-button">Reset Game</button>
+      <button id="btnLeft">◀️</button>
+      <button id="btnUp">🔼</button>
+      <button id="btnDown">🔽</button>
+      <button id="btnRight">▶️</button>
 
-    <h1>Receiver</h1>
+    <div id="game-over"></div>
 
-    <!-- Other audio -->
-    <audio controls autoplay id="otherAudio"></audio>
-
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/simple-peer/9.11.1/simplepeer.min.js"
-      integrity="sha512-0f7Ahsuvr+/P2btTY4mZIw9Vl23lS6LY/Y7amdkmUg2dqsUF+cTe4QjWvj/NIBHJoGksOiqndKQuI9yzn2hB0g=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script>
-    <script src="./js/desktop.js"></script>
+    <script src="./js/snakegame.js"></script>
   </body>
 </html>
