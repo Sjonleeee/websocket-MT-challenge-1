@@ -44,24 +44,41 @@ const moveSnake = () => {
       break;
   }
 
-  // check if the snake hits the edge of the canvas
-  if (
-    newHead.x < 0 ||
-    newHead.x >= gameArea.offsetWidth ||
-    newHead.y < 0 ||
-    newHead.y >= gameArea.offsetHeight
-  ) {
-    clearInterval(game);
-    gameArea.innerHTML = "";
-    const gameOver = document.createElement("h1");
-    gameOver.innerHTML = "Game Over";
-    gameOver.style.textAlign = "center";
-    gameArea.appendChild(gameOver);
+  if (checkCollision(newHead)) {
+    gameOver();
     return;
   }
 
   snake.pop();
   snake.unshift(newHead);
+};
+
+const checkCollision = (head) => {
+  if (
+    head.x < 0 ||
+    head.x >= gameArea.offsetWidth ||
+    head.y < 0 ||
+    head.y >= gameArea.offsetHeight
+  ) {
+    return true;
+  }
+
+  for (let i = 1; i < snake.length; i++) {
+    if (head.x === snake[i].x && head.y === snake[i].y) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+const gameOver = () => {
+  clearInterval(game);
+  gameArea.innerHTML = "";
+  const gameOver = document.createElement("h1");
+  gameOver.innerHTML = "Game Over";
+  gameOver.style.textAlign = "center";
+  gameArea.appendChild(gameOver);
 };
 
 const getFoodLocation = () => {
@@ -143,6 +160,24 @@ const handleDirectionChange = (dir) => {
       break;
   }
 };
+
+document.addEventListener("keydown", (event) => {
+  const key = event.key;
+  switch (key) {
+    case "ArrowLeft":
+      handleDirectionChange("btnLeft");
+      break;
+    case "ArrowUp":
+      handleDirectionChange("btnUp");
+      break;
+    case "ArrowRight":
+      handleDirectionChange("btnRight");
+      break;
+    case "ArrowDown":
+      handleDirectionChange("btnDown");
+      break;
+  }
+});
 
 // Direction buttons
 const buttons = document.querySelectorAll(".btn");
