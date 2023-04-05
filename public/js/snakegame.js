@@ -55,7 +55,7 @@ const moveSnake = () => {
     gameArea.innerHTML = "";
     const gameOver = document.createElement("h1");
     gameOver.innerHTML = "Game Over";
-    gameOver.style.textAlign = "center"; 
+    gameOver.style.textAlign = "center";
     gameArea.appendChild(gameOver);
     return;
   }
@@ -76,7 +76,7 @@ const drawFood = () => {
   foodElement.style.left = food.x + "px";
   foodElement.style.top = food.y + "px";
   foodElement.classList.add("food");
-  foodElement.innerHTML = "🍔"; 
+  foodElement.innerHTML = "🍔";
   gameArea.appendChild(foodElement);
 };
 
@@ -84,16 +84,19 @@ const startButton = document.getElementById("start-button");
 
 const startGame = () => {
   clearInterval(game);
+  gameArea.innerHTML = ""; // clear game area before drawing
+  snake = startSnake;
   food = getFoodLocation();
+  drawSnake();
   drawFood();
   game = setInterval(() => {
     gameArea.innerHTML = "";
     moveSnake();
     drawSnake();
+    drawFood(); // draw food on each frame
     if (snake[0].x === food.x && snake[0].y === food.y) {
       snake.push(snake[snake.length - 1]);
       food = getFoodLocation();
-      drawFood();
     }
   }, 100);
 };
