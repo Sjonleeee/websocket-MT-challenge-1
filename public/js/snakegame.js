@@ -5,6 +5,16 @@ let startSnake = [
   { x: 260, y: 300 },
 ];
 
+const btnLeft = document.querySelector("#btnLeft");
+const btnUp = document.querySelector("#btnUp");
+const btnRight = document.querySelector("#btnRight");
+const btnDown = document.querySelector("#btnDown");
+
+btnLeft.addEventListener("click", () => handleDirectionChange("btnLeft"));
+btnUp.addEventListener("click", () => handleDirectionChange("btnUp"));
+btnRight.addEventListener("click", () => handleDirectionChange("btnRight"));
+btnDown.addEventListener("click", () => handleDirectionChange("btnDown"));
+
 // Snake Game
 const gameArea = document.getElementById("game-area");
 let snake;
@@ -44,8 +54,20 @@ const moveSnake = () => {
       break;
   }
 
-  if (checkCollision(newHead)) {
-    gameOver();
+  // check if the snake hits the edge of the canvas
+  if (
+    newHead.x < 0 ||
+    newHead.x >= gameArea.offsetWidth ||
+    newHead.y < 0 ||
+    newHead.y >= gameArea.offsetHeight
+  ) {
+    clearInterval(game);
+    gameArea.innerHTML = "";
+
+    const gameOver = document.createElement("h1");
+    gameOver.innerHTML = "Game Over";
+    gameOver.style.textAlign = "center";
+    gameArea.appendChild(gameOver);
     return;
   }
 
@@ -70,15 +92,6 @@ const checkCollision = (head) => {
   }
 
   return false;
-};
-
-const gameOver = () => {
-  clearInterval(game);
-  gameArea.innerHTML = "";
-  const gameOver = document.createElement("h1");
-  gameOver.innerHTML = "Game Over";
-  gameOver.style.textAlign = "center";
-  gameArea.appendChild(gameOver);
 };
 
 const getFoodLocation = () => {

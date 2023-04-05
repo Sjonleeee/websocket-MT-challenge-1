@@ -37,18 +37,9 @@ p {
   border-radius: 50% 50%;
 }
 
-.container {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  align-self: center;
-}
+
 
 .container button {
-  display: block;
-  margin: 0 auto;
-  padding: 15px 15px;
   border: none;
   border-radius: 20%;
   background-color: lightgray;
