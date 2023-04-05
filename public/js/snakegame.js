@@ -55,7 +55,7 @@ const moveSnake = () => {
     gameArea.innerHTML = "";
     const gameOver = document.createElement("h1");
     gameOver.innerHTML = "Game Over";
-    gameOver.style.textAlign = "center";
+    gameOver.style.textAlign = "center"; 
     gameArea.appendChild(gameOver);
     return;
   }
@@ -76,7 +76,7 @@ const drawFood = () => {
   foodElement.style.left = food.x + "px";
   foodElement.style.top = food.y + "px";
   foodElement.classList.add("food");
-  foodElement.innerHTML = "🍔"; // add some content to the food element
+  foodElement.innerHTML = "🍔"; 
   gameArea.appendChild(foodElement);
 };
 
