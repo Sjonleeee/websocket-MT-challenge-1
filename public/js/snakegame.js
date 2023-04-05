@@ -43,6 +43,23 @@ const moveSnake = () => {
       newHead.x += 20;
       break;
   }
+
+  // check if the snake hits the edge of the canvas
+  if (
+    newHead.x < 0 ||
+    newHead.x >= gameArea.offsetWidth ||
+    newHead.y < 0 ||
+    newHead.y >= gameArea.offsetHeight
+  ) {
+    clearInterval(game);
+    gameArea.innerHTML = "";
+    const gameOver = document.createElement("h1");
+    gameOver.innerHTML = "Game Over";
+    gameOver.style.textAlign = "center";
+    gameArea.appendChild(gameOver);
+    return;
+  }
+
   snake.pop();
   snake.unshift(newHead);
 };
