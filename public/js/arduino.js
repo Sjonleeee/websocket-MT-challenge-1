@@ -62,9 +62,29 @@ const connect = async (port) => {
   displayConnectionState();
   await port.open({ baudRate: 9600 });
 
+  // Linebreak transformer
+  const lineBreakTransformer = new TransformStream({
+    transform(chunk, controller) {
+      const text = chunk;
+      const lines = text.split("\n");
+      lines[0] = (this.remainder || "") + lines[0];
+      this.remainder = lines.pop();
+      lines.forEach((line) => controller.enqueue(line));
+    },
+    flush(controller) {
+      if (this.remainder) {
+        controller.enqueue(this.remainder);
+      }
+    },
+  });
+
   // Read data from the port
   while (port.readable) {
-    const reader = port.readable.getReader();
+    const decoder = new TextDecoderStream();
+    const readableStreamClosed = port.readable.pipeTo(decoder.writable);
+    const inputStream = decoder.readable.pipeThrough(lineBreakTransformer);
+    const reader = inputStream.getReader();
+
     try {
       while (true) {
         const { value, done } = await reader.read();
