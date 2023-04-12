@@ -17,10 +17,11 @@
       </div>
     </div>
     <script type="module">
-      // usbProductId: 32823;
-      // usbVendorId: 9025;
 
-      // app state
+      // Arduino info
+      const arduinoInfo = { usbProductId: 32823, usbVendorId: 9025 };
+
+      // App state
       const hasWebSerial = "serial" in navigator;
       let isConnected = false;
 
@@ -37,14 +38,18 @@
         displayConnectionState();
 
         navigator.serial.addEventListener("connect", async (e) => {
-          // const port = e.target;
-          // const info = port.getInfo();
           console.log("connect", e.target);
-          await connect(e.target);
+          const info = e.target.getInfo();
+          if (info.usbProductId === arduinoInfo.usbProductId && info.usbVendorId === arduinoInfo.usbVendorId) {
+            await connect(e.target);
+          }
         });
 
         // PORTS
-        const ports = await navigator.serial.getPorts();
+        const ports = (await navigator.serial.getPorts()).filter(port => {
+          const info = port.getInfo();
+          return info.usbProductId === arduinoInfo.usbProductId && info.usbVendorId === arduinoInfo.usbVendorId;
+        })
         if (ports.length > 0) {
           await connect(ports[0]);
         }
