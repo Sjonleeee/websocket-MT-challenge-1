@@ -17,6 +17,10 @@
       </div>
     </div>
     <script type="module">
+
+      // usbProductId: 32823;
+      // usbVendorId: 9025;
+
       // app state
       const hasWebSerial = "serial" in navigator;
       let isConnected = false;
@@ -59,6 +63,9 @@
       const handleClickConnect = async () => {
         const port = await navigator.serial.requestPort();
         console.log(port);
+
+        const info = port.getInfo();
+        console.log(info);
       };
 
       const displaySupportedState = () => {
