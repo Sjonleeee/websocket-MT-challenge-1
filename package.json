@@ -1,8 +1,8 @@
 {
   "name": "websocket-mt",
   "version": "1.0.0",
-  "description": "",
-  "main": "script.js",
+  "description": "socket snake game",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
@@ -12,7 +12,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.2",
-    "socket.io": "^4.6.0"
+    "express": "^4.18.2"
   }
 }
