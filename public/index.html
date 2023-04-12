@@ -29,24 +29,27 @@
         displayConnectionState();
 
         navigator.serial.addEventListener("connect", (e) => {
-          const port = e.target;
-          const info = port.getInfo();
-          console.log("connect", port, info);
+          // const port = e.target;
+          // const info = port.getInfo();
+          console.log("connect", e.target);
         });
 
         navigator.serial.addEventListener("disconnect", (e) => {
-          const port = e.target;
-          const info = port.getInfo();
-          console.log("disconnect", port, info);
+          // const port = e.target;
+          // const info = port.getInfo();
+          console.log("disconnect", e.target);
         });
 
         const ports = await navigator.serial.getPorts();
+        console.log(ports);
 
-        console.log("Ports");
-        ports.forEach((port) => {
-          const info = port.getInfo();
-          console.log(info);
-        });
+        const port = await navigator.serial.requestPort();
+        console.log(port);
+        // console.log("Ports");
+        // ports.forEach((port) => {
+        //   const info = port.getInfo();
+        //   console.log(info);
+        // });
       };
 
       const displaySupportedState = () => {
