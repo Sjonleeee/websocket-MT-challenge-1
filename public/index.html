@@ -36,20 +36,18 @@
         if (!hasWebSerial) return;
         displayConnectionState();
 
-        navigator.serial.addEventListener("connect", (e) => {
+        navigator.serial.addEventListener("connect", async (e) => {
           // const port = e.target;
           // const info = port.getInfo();
           console.log("connect", e.target);
-        });
-
-        navigator.serial.addEventListener("disconnect", (e) => {
-          // const port = e.target;
-          // const info = port.getInfo();
-          console.log("disconnect", e.target);
+          await connect(e.target);
         });
 
         // PORTS
         const ports = await navigator.serial.getPorts();
+        if (ports.length > 0) {
+          await connect(ports[0]);
+        }
         console.log(ports);
 
         $connectButton.addEventListener("click", handleClickConnect);
@@ -65,7 +63,10 @@
 
         const info = port.getInfo();
         console.log(info);
+        };
 
+      // Update the connected state
+      const connect = async (port) => {
         isConnected = true;
         displayConnectionState();
         await port.open({ baudRate: 9600 });
@@ -75,7 +76,7 @@
         const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
         const writer = textEncoder.writable.getWriter();
 
-        setInterval(async () => {
+        const intervalId = setInterval(async () => {
           const data = {
             r: Math.floor(Math.random() * 255),
             g: Math.floor(Math.random() * 255),
@@ -84,8 +85,14 @@
           console.log(data)
           await writer.write(JSON.stringify(data) = "\n");
         }, 1000);
-      };
 
+        // If that port is closed, stop sending data
+        port.addEventListener("disconnect", () => {
+          clearInterval(intervalId);
+          isConnected = false;
+          displayConnectionState();
+        });
+      };
       const displaySupportedState = () => {
         if (hasWebSerial) {
           $notSupported.style.display = "none";
