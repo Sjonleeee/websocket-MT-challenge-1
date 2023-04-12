@@ -9,7 +9,10 @@
     <div id="app">
       <div id="not-supported">Web Serial is not supported in this browser.</div>
       <div id="supported">
-        <div id="not-connected">Not Connected</div>
+        <div id="not-connected">
+          <div>Not Connected</div>
+          <button id="connectButton">Connect</button>
+        </div>
         <div id="connected">Connected</div>
       </div>
     </div>
@@ -22,6 +25,8 @@
       const $supported = document.getElementById("supported");
       const $notConnected = document.getElementById("not-connected");
       const $connected = document.getElementById("connected");
+
+      const $connectButton = document.getElementById("connectButton");
 
       const init = async () => {
         displaySupportedState();
@@ -40,16 +45,20 @@
           console.log("disconnect", e.target);
         });
 
+        // PORTS
         const ports = await navigator.serial.getPorts();
         console.log(ports);
 
+        $connectButton.addEventListener("click", handleClickConnect);
+
+        // REQUEST PORT
         const port = await navigator.serial.requestPort();
         console.log(port);
-        // console.log("Ports");
-        // ports.forEach((port) => {
-        //   const info = port.getInfo();
-        //   console.log(info);
-        // });
+      };
+
+      const handleClickConnect = async () => {
+        const port = await navigator.serial.requestPort();
+        console.log(port);
       };
 
       const displaySupportedState = () => {
