@@ -3,24 +3,73 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <link rel="stylesheet" href="/css/style.css" />
-    <link rel="stylesheet" href="/css/remote.css" />
-
-    <title>Socket.io Challenge 1</title>
+    <title>Arduino Web Serial</title>
   </head>
-
   <body>
-    <div id="score">Score: 0</div>
+    <div id="app">
+      <div id="not-supported">Web Serial is not supported in this browser.</div>
+      <div id="supported">
+        <div id="not-connected">Not Connected</div>
+        <div id="connected">Connected</div>
+      </div>
+    </div>
+    <script type="module">
+      // app state
+      const hasWebSerial = "serial" in navigator;
+      let isConnected = false;
 
-    <div id="game-area"></div>
-    <button id="start-button">Start Game</button>
-    <button id="reset-button" style="display: none">Reset Game</button>
-    <button id="btnLeft">◀️</button>
-    <button id="btnUp">🔼</button>
-    <button id="btnDown">🔽</button>
-    <button id="btnRight">▶️</button>
+      const $notSupported = document.getElementById("not-supported");
+      const $supported = document.getElementById("supported");
+      const $notConnected = document.getElementById("not-connected");
+      const $connected = document.getElementById("connected");
 
-    <script src="./js/snakegame.js"></script>
+      const init = async () => {
+        displaySupportedState();
+        if (!hasWebSerial) return;
+        displayConnectionState();
+
+        navigator.serial.addEventListener("connect", (e) => {
+          const port = e.target;
+          const info = port.getInfo();
+          console.log("connect", port, info);
+        });
+
+        navigator.serial.addEventListener("disconnect", (e) => {
+          const port = e.target;
+          const info = port.getInfo();
+          console.log("disconnect", port, info);
+        });
+
+        const ports = await navigator.serial.getPorts();
+
+        console.log("Ports");
+        ports.forEach((port) => {
+          const info = port.getInfo();
+          console.log(info);
+        });
+      };
+
+      const displaySupportedState = () => {
+        if (hasWebSerial) {
+          $notSupported.style.display = "none";
+          $supported.style.display = "block";
+        } else {
+          $notSupported.style.display = "block";
+          $supported.style.display = "none";
+        }
+      };
+
+      const displayConnectionState = () => {
+        if (isConnected) {
+          $notConnected.style.display = "none";
+          $connected.style.display = "block";
+        } else {
+          $notConnected.style.display = "block";
+          $connected.style.display = "none";
+        }
+      };
+
+      init();
+    </script>
   </body>
 </html>
