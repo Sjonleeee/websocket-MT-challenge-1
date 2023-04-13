@@ -13,6 +13,9 @@ const $connected = document.getElementById("connected");
 
 const $connectButton = document.getElementById("connectButton");
 
+const $xValue = document.getElementById("xValue");
+const $yValue = document.getElementById("yValue");
+
 const init = async () => {
   displaySupportedState();
   if (!hasWebSerial) return;
@@ -94,9 +97,13 @@ const connect = async (port) => {
         }
         try {
           const parsed = JSON.parse(value);
-          console.log(parsed);
+          processJSON(parsed);
+
+          // Update joystick input
+          // joystickX = parsed.joystickX;
+          // joystickY = parsed.joystickY;
         } catch (e) {
-          console.log(e);
+          // console.log(e);
         }
       }
     } catch (error) {
@@ -114,6 +121,28 @@ const connect = async (port) => {
     displayConnectionState();
   });
 };
+
+const processJSON = (json) => {
+  if (json.sensor === "joystick") {
+    const joystickX = json.data[0];
+    const joystickY = json.data[1];
+
+    // Determine direction based on joystick input
+    if (joystickX > 600) {
+      direction = "right";
+    } else if (joystickX < 400) {
+      direction = "left";
+    } else if (joystickY > 600) {
+      direction = "down";
+    } else if (joystickY < 400) {
+      direction = "up";
+    }
+
+    $xValue.innerText = joystickX;
+    $yValue.innerText = joystickY;
+  }
+};
+
 const displaySupportedState = () => {
   if (hasWebSerial) {
     $notSupported.style.display = "none";

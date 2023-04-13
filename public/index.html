@@ -8,17 +8,6 @@
     <title>Socket.io Challenge 1</title>
   </head>
   <body>
-    <div id="app">
-      <div id="not-supported">Web Serial is not supported in this browser.</div>
-      <div id="supported">
-        <div id="not-connected">
-          <div>Not Connected</div>
-          <button id="connectButton">Connect</button>
-        </div>
-        <div id="connected">Connected</div>
-      </div>
-    </div>
-
     <div id="score">Score: 0</div>
     <div id="game-area"></div>
     <button id="start-button">Start Game</button>
@@ -27,6 +16,18 @@
     <button id="btnUp">🔼</button>
     <button id="btnDown">🔽</button>
     <button id="btnRight">▶️</button>
+    <div id="app">
+      <div id="not-supported">Web Serial is not supported in this browser.</div>
+      <div id="supported">
+        <div id="not-connected">
+          <div>Not Connected</div>
+          <button id="connectButton">Connect</button>
+        </div>
+        <div id="connected">Connected</div>
+        <div id="xValue">0</div>
+        <div id="yValue">0</div>
+      </div>
+    </div>
 
     <script src="./js/snakegame.js"></script>
     <script src="./js/arduino.js"></script>
