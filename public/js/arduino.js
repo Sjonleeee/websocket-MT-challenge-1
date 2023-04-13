@@ -98,10 +98,6 @@ const connect = async (port) => {
         try {
           const parsed = JSON.parse(value);
           processJSON(parsed);
-
-          // Update joystick input
-          // joystickX = parsed.joystickX;
-          // joystickY = parsed.joystickY;
         } catch (e) {
           // console.log(e);
         }
