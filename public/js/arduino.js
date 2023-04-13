@@ -92,8 +92,12 @@ const connect = async (port) => {
           // |reader| has been canceled.
           break;
         }
-        // Do something with |value|...
-        console.log(value);
+        try {
+          const parsed = JSON.parse(value);
+          console.log(parsed);
+        } catch (e) {
+          console.log(e);
+        }
       }
     } catch (error) {
       // Handle |error|...
@@ -104,6 +108,8 @@ const connect = async (port) => {
 
   // If that port is closed, stop sending data
   port.addEventListener("disconnect", () => {
+    console.log(`Disconnected: ${port.serialNumber}`);
+    lineBreakTransformer.readable.cancel();
     isConnected = false;
     displayConnectionState();
   });
