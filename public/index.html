@@ -8,14 +8,6 @@
     <title>Socket.io Challenge 1</title>
   </head>
   <body>
-    <div id="score">Score: 0</div>
-    <div id="game-area"></div>
-    <button id="start-button">Start Game</button>
-    <button id="reset-button" style="display: none">Reset Game</button>
-    <button id="btnLeft">◀️</button>
-    <button id="btnUp">🔼</button>
-    <button id="btnDown">🔽</button>
-    <button id="btnRight">▶️</button>
     <div id="app">
       <div id="not-supported">Web Serial is not supported in this browser.</div>
       <div id="supported">
@@ -27,6 +19,16 @@
         <div id="xValue">X: 0</div>
         <div id="yValue">Y: 0</div>
       </div>
+    </div>
+    <div id="score">Score: 0</div>
+    <div id="game-area"></div>
+    <button id="start-button">Start Game</button>
+    <button id="reset-button" style="display: none">Reset Game</button>
+    <div class="play-buttons">
+      <button id="btnLeft">◀️</button>
+      <button id="btnUp">🔼</button>
+      <button id="btnRight">▶️</button>
+      <button id="btnDown">🔽</button>
     </div>
 
     <script src="./js/snakegame.js"></script>

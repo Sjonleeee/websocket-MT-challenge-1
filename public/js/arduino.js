@@ -134,8 +134,8 @@ const processJSON = (json) => {
       direction = "up";
     }
 
-    $xValue.innerText = joystickX;
-    $yValue.innerText = joystickY;
+    $xValue.innerText = "x: " + joystickX;
+    $yValue.innerText = "y: " + joystickY;
   }
 };
 
