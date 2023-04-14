@@ -13,20 +13,23 @@
       <div id="supported">
         <div id="not-connected">
           <div>Not Connected</div>
-          <!-- <button id="connectButton">Connect</button> -->
+          <button id="connectButton">Connect</button>
         </div>
         <div id="connected">Connected</div>
+        <div id="xValue">X: 0</div>
+        <div id="yValue">Y: 0</div>
       </div>
     </div>
-
     <div id="score">Score: 0</div>
     <div id="game-area"></div>
     <button id="start-button">Start Game</button>
     <button id="reset-button" style="display: none">Reset Game</button>
-    <button id="btnLeft">◀️</button>
-    <button id="btnUp">🔼</button>
-    <button id="btnDown">🔽</button>
-    <button id="btnRight">▶️</button>
+    <div class="play-buttons">
+      <button id="btnLeft">◀️</button>
+      <button id="btnUp">🔼</button>
+      <button id="btnRight">▶️</button>
+      <button id="btnDown">🔽</button>
+    </div>
 
     <script src="./js/snakegame.js"></script>
     <script src="./js/arduino.js"></script>
