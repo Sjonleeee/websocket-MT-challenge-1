@@ -4,6 +4,7 @@ let connectedArduinoPorts = [];
 
 // App state
 const hasWebSerial = "serial" in navigator;
+const isRedLedOn = true;
 let isConnected = false;
 
 const $notSupported = document.getElementById("not-supported");
@@ -54,9 +55,23 @@ const init = async () => {
 const handleClickConnect = async () => {
   const port = await navigator.serial.requestPort();
   console.log(port);
-
   const info = port.getInfo();
   console.log(info);
+};
+
+const handleRedButtonClick = async () => {
+  const textEncoder = new TextEncoderStream();
+  const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
+  const writer = textEncoder.writable.getWriter();
+
+  setInterval(async () => {
+    const data = {
+      led: "R",
+      state: isRedLedOn ? "on" : "off",
+    };
+    console.log(data);
+    await writer.write(JSON.stringify(data) + "\n");
+  }, 1000);
 };
 
 // Update the connected state
