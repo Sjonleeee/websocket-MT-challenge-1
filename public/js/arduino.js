@@ -13,6 +13,7 @@ const $notConnected = document.getElementById("not-connected");
 const $connected = document.getElementById("connected");
 
 const $connectButton = document.getElementById("connectButton");
+const $redButton = document.getElementById("redButton");
 
 const $xValue = document.getElementById("xValue");
 const $yValue = document.getElementById("yValue");
@@ -46,6 +47,7 @@ const init = async () => {
   }
   console.log(ports);
   $connectButton.addEventListener("click", handleClickConnect);
+  $redButton.addEventListener("click", handleRedButtonClick);
 
   // REQUEST PORT
   const port = await navigator.serial.requestPort();
@@ -60,18 +62,11 @@ const handleClickConnect = async () => {
 };
 
 const handleRedButtonClick = async () => {
-  const textEncoder = new TextEncoderStream();
-  const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
-  const writer = textEncoder.writable.getWriter();
-
-  setInterval(async () => {
-    const data = {
-      led: "R",
-      state: isRedLedOn ? "on" : "off",
-    };
-    console.log(data);
-    await writer.write(JSON.stringify(data) + "\n");
-  }, 1000);
+  const textEncoder = new TextEncoder();
+  const data = { led: "R", state: isRedLedOn ? "on" : "off" };
+  const message = JSON.stringify(data) + "\n";
+  await port.write(textEncoder.encode(message));
+  isRedLedOn = !isRedLedOn;
 };
 
 // Update the connected state
