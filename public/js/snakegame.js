@@ -299,7 +299,7 @@ const startGame = () => {
   food = getFoodLocation();
   drawSnake();
   drawFood();
-  game = setInterval(() => {
+  game = setInterval(async () => {
     gameArea.innerHTML = "";
     moveSnake();
     drawSnake();
@@ -309,9 +309,21 @@ const startGame = () => {
       food = getFoodLocation();
       score += 1;
       document.getElementById("score").innerHTML = "Score: " + score;
+      if (score += 1) {
+        if (!isConnected) {
+          return;
+        }
+        await writer.write(
+          JSON.stringify({
+            red: "G",
+          })
+        );
+        await writer.write("\n");
+      }
     }
   }, 100);
 };
+
 startButton.addEventListener("click", startGame);
 
 const resetButton = document.getElementById("reset-button");
