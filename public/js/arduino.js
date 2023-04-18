@@ -6,6 +6,7 @@ let connectedArduinoPorts = [];
 const hasWebSerial = "serial" in navigator;
 const isRedLedOn = true;
 let isConnected = false;
+let port;
 
 const $notSupported = document.getElementById("not-supported");
 const $supported = document.getElementById("supported");
@@ -55,25 +56,47 @@ const init = async () => {
 };
 
 const handleClickConnect = async () => {
-  const port = await navigator.serial.requestPort();
+  port = await navigator.serial.requestPort();
   console.log(port);
   const info = port.getInfo();
   console.log(info);
 };
 
-const handleRedButtonClick = async () => {
-  const textEncoder = new TextEncoder();
-  const data = { led: "R", state: isRedLedOn ? "on" : "off" };
-  const message = JSON.stringify(data) + "\n";
-  await port.write(textEncoder.encode(message));
-  isRedLedOn = !isRedLedOn;
-};
+// const handleRedButtonClick = async () => {
+//     if (!isConnected) return; // Check if connected to a port
+
+//     const textEncoder = new TextEncoder();
+//     const writeData = new Uint8Array([82, 71]); // "RG" in ASCII
+
+//     try {
+//       await port.writable.write(writeData); // write "RG" to the serial port
+//     } catch (e) {
+//       console.error("Error writing to serial port", e);
+//     }
+// };
 
 // Update the connected state
 const connect = async (port) => {
   isConnected = true;
   displayConnectionState();
   await port.open({ baudRate: 9600 });
+
+  const textEncoder = new TextEncoderStream();
+  const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
+  const writer = textEncoder.writable.getWriter();
+  const intervalId = setInterval(async () => {
+    if (!isConnected) {
+      clearInterval(intervalId);
+      return;
+    }
+    await writer.write(
+      JSON.stringify({
+        red: "R",
+        green: "G",
+      })
+    );
+    await writer.write("\n");
+  }, 1000);
 
   // Linebreak transformer
   const lineBreakTransformer = new TransformStream({
