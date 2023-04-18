@@ -1,195 +1,181 @@
-// Arduino info
-const arduinoInfo = { usbProductId: 32823, usbVendorId: 9025 };
-let connectedArduinoPorts = [];
+// // Arduino info
+// const arduinoInfo = { usbProductId: 32823, usbVendorId: 9025 };
+// let connectedArduinoPorts = [];
 
-// App state
-const hasWebSerial = "serial" in navigator;
-const isRedLedOn = true;
-let isConnected = false;
-let port;
+// // App state
+// const hasWebSerial = "serial" in navigator;
+// let isConnected = false;
+// let port;
 
-const $notSupported = document.getElementById("not-supported");
-const $supported = document.getElementById("supported");
-const $notConnected = document.getElementById("not-connected");
-const $connected = document.getElementById("connected");
+// const $notSupported = document.getElementById("not-supported");
+// const $supported = document.getElementById("supported");
+// const $notConnected = document.getElementById("not-connected");
+// const $connected = document.getElementById("connected");
 
-const $connectButton = document.getElementById("connectButton");
-const $redButton = document.getElementById("redButton");
+// const $connectButton = document.getElementById("connectButton");
+// const $redButton = document.getElementById("redButton");
 
-const $xValue = document.getElementById("xValue");
-const $yValue = document.getElementById("yValue");
+// const $xValue = document.getElementById("xValue");
+// const $yValue = document.getElementById("yValue");
 
-const init = async () => {
-  displaySupportedState();
-  if (!hasWebSerial) return;
-  displayConnectionState();
+// const init = async () => {
+//   displaySupportedState();
+//   if (!hasWebSerial) return;
+//   displayConnectionState();
 
-  navigator.serial.addEventListener("connect", async (e) => {
-    console.log("connect", e.target);
-    const info = e.target.getInfo();
-    if (
-      info.usbProductId === arduinoInfo.usbProductId &&
-      info.usbVendorId === arduinoInfo.usbVendorId
-    ) {
-      await connect(e.target);
-    }
-  });
-
-  // PORTS
-  const ports = (await navigator.serial.getPorts()).filter((port) => {
-    const info = port.getInfo();
-    return (
-      info.usbProductId === arduinoInfo.usbProductId &&
-      info.usbVendorId === arduinoInfo.usbVendorId
-    );
-  });
-  if (ports.length > 0) {
-    await connect(ports[0]);
-  }
-  console.log(ports);
-  $connectButton.addEventListener("click", handleClickConnect);
-  $redButton.addEventListener("click", handleRedButtonClick);
-
-  // REQUEST PORT
-  const port = await navigator.serial.requestPort();
-  console.log(port);
-};
-
-const handleClickConnect = async () => {
-  port = await navigator.serial.requestPort();
-  console.log(port);
-  const info = port.getInfo();
-  console.log(info);
-};
-
-// const handleRedButtonClick = async () => {
-//     if (!isConnected) return; // Check if connected to a port
-
-//     const textEncoder = new TextEncoder();
-//     const writeData = new Uint8Array([82, 71]); // "RG" in ASCII
-
-//     try {
-//       await port.writable.write(writeData); // write "RG" to the serial port
-//     } catch (e) {
-//       console.error("Error writing to serial port", e);
+//   navigator.serial.addEventListener("connect", async (e) => {
+//     console.log("connect", e.target);
+//     const info = e.target.getInfo();
+//     if (
+//       info.usbProductId === arduinoInfo.usbProductId &&
+//       info.usbVendorId === arduinoInfo.usbVendorId
+//     ) {
+//       await connect(e.target);
 //     }
+//   });
+
+//   // PORTS
+//   const ports = (await navigator.serial.getPorts()).filter((port) => {
+//     const info = port.getInfo();
+//     return (
+//       info.usbProductId === arduinoInfo.usbProductId &&
+//       info.usbVendorId === arduinoInfo.usbVendorId
+//     );
+//   });
+//   if (ports.length > 0) {
+//     await connect(ports[0]);
+//   }
+//   console.log(ports);
+//   $connectButton.addEventListener("click", handleClickConnect);
+//   $redButton.addEventListener("click", handleRedButtonClick);
+
+//   // REQUEST PORT
+//   const port = await navigator.serial.requestPort();
+//   console.log(port);
 // };
 
-// Update the connected state
-const connect = async (port) => {
-  isConnected = true;
-  displayConnectionState();
-  await port.open({ baudRate: 9600 });
+// const handleClickConnect = async () => {
+//   port = await navigator.serial.requestPort();
+//   console.log(port);
+//   const info = port.getInfo();
+//   console.log(info);
+// };
 
-  const textEncoder = new TextEncoderStream();
-  const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
-  const writer = textEncoder.writable.getWriter();
-  const intervalId = setInterval(async () => {
-    if (!isConnected) {
-      clearInterval(intervalId);
-      return;
-    }
-    await writer.write(
-      JSON.stringify({
-        red: "R",
-        green: "G",
-      })
-    );
-    await writer.write("\n");
-  }, 1000);
+// // Update the connected state
+// const connect = async (port) => {
+//   isConnected = true;
+//   displayConnectionState();
+//   await port.open({ baudRate: 9600 });
 
-  // Linebreak transformer
-  const lineBreakTransformer = new TransformStream({
-    transform(chunk, controller) {
-      const text = chunk;
-      const lines = text.split("\n");
-      lines[0] = (this.remainder || "") + lines[0];
-      this.remainder = lines.pop();
-      lines.forEach((line) => controller.enqueue(line));
-    },
-    flush(controller) {
-      if (this.remainder) {
-        controller.enqueue(this.remainder);
-      }
-    },
-  });
+//   const textEncoder = new TextEncoderStream();
+//   const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
+//   const writer = textEncoder.writable.getWriter();
+//   const intervalId = setInterval(async () => {
+//     if (!isConnected) {
+//       clearInterval(intervalId);
+//       return;
+//     }
+//     await writer.write(
+//       JSON.stringify({
+//         red: "R",
+//         green: "G",
+//       })
+//     );
+//     await writer.write("\n");
+//   }, 1000);
 
-  // Read data from the port
-  while (port.readable) {
-    const decoder = new TextDecoderStream();
-    const readableStreamClosed = port.readable.pipeTo(decoder.writable);
-    const inputStream = decoder.readable.pipeThrough(lineBreakTransformer);
-    const reader = inputStream.getReader();
+//   // Linebreak transformer
+//   const lineBreakTransformer = new TransformStream({
+//     transform(chunk, controller) {
+//       const text = chunk;
+//       const lines = text.split("\n");
+//       lines[0] = (this.remainder || "") + lines[0];
+//       this.remainder = lines.pop();
+//       lines.forEach((line) => controller.enqueue(line));
+//     },
+//     flush(controller) {
+//       if (this.remainder) {
+//         controller.enqueue(this.remainder);
+//       }
+//     },
+//   });
 
-    try {
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) {
-          // |reader| has been canceled.
-          break;
-        }
-        try {
-          const parsed = JSON.parse(value);
-          processJSON(parsed);
-        } catch (e) {
-          // console.log(e);
-        }
-      }
-    } catch (error) {
-      // Handle |error|...
-    } finally {
-      reader.releaseLock();
-    }
-  }
+//   // Read data from the port
+//   while (port.readable) {
+//     const decoder = new TextDecoderStream();
+//     const readableStreamClosed = port.readable.pipeTo(decoder.writable);
+//     const inputStream = decoder.readable.pipeThrough(lineBreakTransformer);
+//     const reader = inputStream.getReader();
 
-  // If that port is closed, stop sending data
-  port.addEventListener("disconnect", () => {
-    console.log(`Disconnected: ${port.serialNumber}`);
-    lineBreakTransformer.readable.cancel();
-    isConnected = false;
-    displayConnectionState();
-  });
-};
+//     try {
+//       while (true) {
+//         const { value, done } = await reader.read();
+//         if (done) {
+//           // |reader| has been canceled.
+//           break;
+//         }
+//         try {
+//           const parsed = JSON.parse(value);
+//           processJSON(parsed);
+//         } catch (e) {
+//           // console.log(e);
+//         }
+//       }
+//     } catch (error) {
+//       // Handle |error|...
+//     } finally {
+//       reader.releaseLock();
+//     }
+//   }
 
-const processJSON = (json) => {
-  if (json.sensor === "joystick") {
-    const joystickX = json.data[0];
-    const joystickY = json.data[1];
+//   // If that port is closed, stop sending data
+//   port.addEventListener("disconnect", () => {
+//     console.log(`Disconnected: ${port.serialNumber}`);
+//     lineBreakTransformer.readable.cancel();
+//     isConnected = false;
+//     displayConnectionState();
+//   });
+// };
 
-    // Determine direction based on joystick input
-    if (joystickX > 600) {
-      direction = "right";
-    } else if (joystickX < 400) {
-      direction = "left";
-    } else if (joystickY > 600) {
-      direction = "down";
-    } else if (joystickY < 400) {
-      direction = "up";
-    }
+// const processJSON = (json) => {
+//   if (json.sensor === "joystick") {
+//     const joystickX = json.data[0];
+//     const joystickY = json.data[1];
 
-    $xValue.innerText = "x: " + joystickX;
-    $yValue.innerText = "y: " + joystickY;
-  }
-};
+//     // Determine direction based on joystick input
+//     if (joystickX > 600) {
+//       direction = "right";
+//     } else if (joystickX < 400) {
+//       direction = "left";
+//     } else if (joystickY > 600) {
+//       direction = "down";
+//     } else if (joystickY < 400) {
+//       direction = "up";
+//     }
 
-const displaySupportedState = () => {
-  if (hasWebSerial) {
-    $notSupported.style.display = "none";
-    $supported.style.display = "block";
-  } else {
-    $notSupported.style.display = "block";
-    $supported.style.display = "none";
-  }
-};
+//     $xValue.innerText = "x: " + joystickX;
+//     $yValue.innerText = "y: " + joystickY;
+//   }
+// };
 
-const displayConnectionState = () => {
-  if (isConnected) {
-    $notConnected.style.display = "none";
-    $connected.style.display = "block";
-  } else {
-    $notConnected.style.display = "block";
-    $connected.style.display = "none";
-  }
-};
+// const displaySupportedState = () => {
+//   if (hasWebSerial) {
+//     $notSupported.style.display = "none";
+//     $supported.style.display = "block";
+//   } else {
+//     $notSupported.style.display = "block";
+//     $supported.style.display = "none";
+//   }
+// };
 
-init();
+// const displayConnectionState = () => {
+//   if (isConnected) {
+//     $notConnected.style.display = "none";
+//     $connected.style.display = "block";
+//   } else {
+//     $notConnected.style.display = "block";
+//     $connected.style.display = "none";
+//   }
+// };
+
+// init();
