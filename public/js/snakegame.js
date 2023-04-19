@@ -35,7 +35,7 @@ const init = async () => {
     }
   });
 
-  // PORTS
+  // Automatically connect to first available Arduino
   const ports = (await navigator.serial.getPorts()).filter((port) => {
     const info = port.getInfo();
     return (
@@ -54,6 +54,7 @@ const init = async () => {
   console.log(port);
 };
 
+// Request port when Connect button is clicked
 const handleClickConnect = async () => {
   port = await navigator.serial.requestPort();
   console.log(port);
@@ -61,7 +62,7 @@ const handleClickConnect = async () => {
   console.log(info);
 };
 
-// Update the connected state
+// Connect to Arduino and set up data streams
 const connect = async (port) => {
   isConnected = true;
   displayConnectionState();
@@ -141,8 +142,8 @@ const processJSON = (json) => {
       direction = "up";
     }
 
-    $xValue.innerText = "x: " + joystickX;
-    $yValue.innerText = "y: " + joystickY;
+    // $xValue.innerText = "x: " + joystickX;
+    // $yValue.innerText = "y: " + joystickY;
   }
 };
 
